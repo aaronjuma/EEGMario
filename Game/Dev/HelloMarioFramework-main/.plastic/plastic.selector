@@ -1,0 +1,4 @@
+repository "HelloMarioFramework-main@KapjGames@cloud"
+  path "/"
+    br "/main"
+    co "/main"
