@@ -335,7 +335,7 @@ namespace HelloMarioFramework
                 diff.color = Color.red;
                 marioSpeed.text = "7";
                 marioJump.text = "7";
-                goomba.text = "7";
+                goomba.text = "6";
                 firebar.text = "7";
             }
             else if (id == 4){
@@ -351,8 +351,8 @@ namespace HelloMarioFramework
                 diff.color = Color.blue;
                 marioSpeed.text = "1";
                 marioJump.text = "9";
-                goomba.text = "8";
-                firebar.text = "7";
+                goomba.text = "7";
+                firebar.text = "8";
             }
         }
 
