@@ -328,15 +328,15 @@ namespace HelloMarioFramework
                 marioSpeed.text = "5";
                 marioJump.text = "5";
                 goomba.text = "5";
-                firebar.text = "5";
+                firebar.text = "6";
             }
             else if (id == 3){
                 diff.text = "Hard";
                 diff.color = Color.red;
                 marioSpeed.text = "7";
                 marioJump.text = "7";
-                goomba.text = "6";
-                firebar.text = "7";
+                goomba.text = "7";
+                firebar.text = "8";
             }
             else if (id == 4){
                 diff.text = "Extreme";

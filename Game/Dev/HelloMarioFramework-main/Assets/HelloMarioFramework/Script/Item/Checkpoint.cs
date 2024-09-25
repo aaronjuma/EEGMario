@@ -81,7 +81,7 @@ namespace HelloMarioFramework
             SaveData.checkpoint = true;
             SaveData.checkpointPos = transform.position;
             Vector3 rot = transform.rotation.eulerAngles;
-            SaveData.checkpointRot = Quaternion.Euler(rot.x, rot.y + 180f, rot.z);
+            SaveData.checkpointRot = Quaternion.Euler(rot.x, rot.y, rot.z);
             StartCoroutine(Shake());
         }
 

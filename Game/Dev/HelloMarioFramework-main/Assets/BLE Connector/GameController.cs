@@ -27,6 +27,14 @@ public class GameController : MonoBehaviour
     public Enemy secondGoomba2;
     public Enemy fourthGoomba;
 
+
+    public GameObject bg;
+    public GameObject bgText;
+    public GameObject bgSpeed;
+    public GameObject bgJump;
+    public GameObject bgFirebar;
+    public GameObject bgGoomba;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -41,6 +49,7 @@ public class GameController : MonoBehaviour
         changeMarioJump(marioJumpDifficulty);
         changeFirebar(firebarDifficulty);
         changeGoomba(goombaDifficulty);
+        showStats(false);
     }
 
     // Update is called once per frame
@@ -65,43 +74,59 @@ public class GameController : MonoBehaviour
             if (goombaDifficulty > 10) goombaDifficulty = 1;
             changeGoomba(goombaDifficulty);
         }
+        if(Input.GetKeyDown(KeyCode.F1)) {
+            showStats(!bg.activeSelf);
+        }
     }
 
-
+    public void showStats(bool stats) {
+        // bg.GetComponent<CanvasElementVisibility>().visible = stats;
+        // bgText.GetComponent<CanvasElementVisibility>().visible = stats;
+        // bgSpeed.GetComponent<CanvasElementVisibility>().visible = stats;
+        // bgJump.GetComponent<CanvasElementVisibility>().visible = stats;
+        // bgGoomba.GetComponent<CanvasElementVisibility>().visible = stats;
+        // bgFirebar.GetComponent<CanvasElementVisibility>().visible = stats;
+        bg.SetActive(stats);
+        bgText.SetActive(stats);
+        bgSpeed.SetActive(stats);
+        bgJump.SetActive(stats);
+        bgGoomba.SetActive(stats);
+        bgFirebar.SetActive(stats);
+    }
 
     public void changeFirebar(int desiredFirebarDifficulty) {
         float firebarsSpeed = 1.0f;
 
         switch(desiredFirebarDifficulty){
             case 1: 
-                firebarsSpeed = 1f;
+                firebarsSpeed = 0.75f;
                 break;
             case 2: 
-                firebarsSpeed = 1.2f;
+                firebarsSpeed = 0.85f;
                 break;
             case 3: 
-                firebarsSpeed = 1.5f;
+                firebarsSpeed = 1f;
                 break;
             case 4: 
-                firebarsSpeed = 1.7f;
+                firebarsSpeed = 1.25f;
                 break;
             case 5: 
-                firebarsSpeed = 2f;
+                firebarsSpeed = 1.5f;
                 break;
             case 6: 
-                firebarsSpeed = 2.2f;
+                firebarsSpeed = 1.75f;
                 break;
             case 7: 
-                firebarsSpeed = 2.5f;
+                firebarsSpeed = 2.0f;
                 break;
             case 8: 
-                firebarsSpeed = 2.7f;
+                firebarsSpeed = 2.25f;
                 break;
             case 9: 
-                firebarsSpeed = 3f;
+                firebarsSpeed = 2.5f;
                 break;
             case 10: 
-                firebarsSpeed = 4f;
+                firebarsSpeed = 2.75f;
                 break;
             default: break;
         }
