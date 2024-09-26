@@ -348,35 +348,35 @@ namespace HelloMarioFramework
                     if (isCrouch)
                     {
 
-                        //Long jump
-                        if (i > 8f && GetInputDirection().sqrMagnitude > 0.25f)
-                        {
-                            speedCap = false;
-                            StartCoroutine(JumpAnim(6));
-                            Vector3 dirSpeed = transform.forward * 18f;
-                            myRigidBody.velocity = new Vector3(dirSpeed.x, 12f, dirSpeed.z);
-                        }
+                        // //Long jump
+                        // if (i > 8f && GetInputDirection().sqrMagnitude > 0.25f)
+                        // {
+                        //     speedCap = false;
+                        //     StartCoroutine(JumpAnim(6));
+                        //     Vector3 dirSpeed = transform.forward * 18f;
+                        //     myRigidBody.velocity = new Vector3(dirSpeed.x, 12f, dirSpeed.z);
+                        // }
 
-                        //Backflip
-                        else
-                        {
-                            StartCoroutine(JumpAnim(5));
-                            myRigidBody.velocity = v + Vector3.up * 18f - transform.forward * 5f;
-                        }
+                        // //Backflip
+                        // else
+                        // {
+                        //     StartCoroutine(JumpAnim(5));
+                        //     myRigidBody.velocity = v + Vector3.up * 18f - transform.forward * 5f;
+                        // }
 
-                        PlayRandomSound(voicePack.specialJumpVoiceSFX);
-                        audioPlayer.PlayOneShot(specialJumpSFX);
+                        // PlayRandomSound(voicePack.specialJumpVoiceSFX);
+                        // audioPlayer.PlayOneShot(specialJumpSFX);
 
                     }
 
                     //Side flip (Negative dot product)
                     else if (Vector3.Dot(direction, v) < 0f)
                     {
-                        StartCoroutine(JumpAnim(4));
-                        PlayRandomSound(voicePack.specialJumpVoiceSFX);
-                        audioPlayer.PlayOneShot(specialJumpSFX);
-                        transform.rotation = Quaternion.LookRotation(new Vector3(direction.x, 0f, direction.z));
-                        myRigidBody.velocity = v + Vector3.up * 18f + transform.forward * 5f;
+                        // StartCoroutine(JumpAnim(4));
+                        // PlayRandomSound(voicePack.specialJumpVoiceSFX);
+                        // audioPlayer.PlayOneShot(specialJumpSFX);
+                        // transform.rotation = Quaternion.LookRotation(new Vector3(direction.x, 0f, direction.z));
+                        // myRigidBody.velocity = v + Vector3.up * 18f + transform.forward * 5f;
                     }
 
                     //Normal jump
