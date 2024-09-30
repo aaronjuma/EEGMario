@@ -241,10 +241,6 @@ namespace HelloMarioFramework
             float large_selector_width = 125f;
 
 
-            // Selector: Left 300, Right 375
-            // Left: Left 239, Right 450
-            // Right: Left 341, Right 347
-
             if (index == 0){
                 selector.GetComponent<RectTransform>().sizeDelta = new Vector2(45f, 42f);
                 selector.GetComponent<RectTransform>().anchoredPosition = 61f * Vector2.up + selector_x * Vector2.right;
