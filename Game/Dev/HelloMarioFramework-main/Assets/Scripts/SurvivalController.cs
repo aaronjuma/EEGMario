@@ -10,6 +10,7 @@ public class SurvivalController : MonoBehaviour
     [SerializeField] private GameObject coinPrefab;
     [SerializeField] private Transform goombaParent;
     [SerializeField] private Transform coinParent;
+    [SerializeField] private float goombaChaseDistance = 10f;
     
     private int goombaCount = 10;
     private int coinCount = 5;
@@ -48,7 +49,7 @@ public class SurvivalController : MonoBehaviour
         Quaternion currentRotation = new Quaternion();
         currentRotation.eulerAngles = new Vector3(0, 90, 0);
         GameObject goomba = Instantiate(goombaPrefab, pos, currentRotation, goombaParent);
-        goomba.GetComponent<Enemy>().chaseDistance = 20f;
+        goomba.GetComponent<Enemy>().chaseDistance = goombaChaseDistance;
     }
 
     private void generateCoin() {
