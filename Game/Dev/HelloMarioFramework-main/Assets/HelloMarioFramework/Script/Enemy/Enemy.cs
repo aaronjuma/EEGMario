@@ -42,6 +42,7 @@ namespace HelloMarioFramework
         protected bool stompable = true;
 
         public float speedMultiplier = 1f;
+        public float chaseDistance = 10f;
         
         void Start()
         {
@@ -115,7 +116,7 @@ namespace HelloMarioFramework
             if (!cooldown)
             {
                 //Start chase
-                if (onGround && !chase && Player.singleton.CanBeChased(transform.position, 10f))
+                if (onGround && !chase && Player.singleton.CanBeChased(transform.position, chaseDistance))
                 {
                     chase = true;
                     StartCoroutine(Cooldown(0.9f));
@@ -123,7 +124,7 @@ namespace HelloMarioFramework
                 }
 
                 //End chase
-                else if (!onGround || (chase && !Player.singleton.CanBeChased(transform.position, 10f)))
+                else if (!onGround || (chase && !Player.singleton.CanBeChased(transform.position, chaseDistance)))
                 {
                     chase = false;
                     StartCoroutine(Cooldown(1.1f));

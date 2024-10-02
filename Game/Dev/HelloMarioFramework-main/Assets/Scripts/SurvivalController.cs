@@ -47,7 +47,8 @@ public class SurvivalController : MonoBehaviour
         Vector3 pos = new Vector3(x, 3, z);
         Quaternion currentRotation = new Quaternion();
         currentRotation.eulerAngles = new Vector3(0, 90, 0);
-        Instantiate(goombaPrefab, pos, currentRotation, goombaParent);
+        GameObject goomba = Instantiate(goombaPrefab, pos, currentRotation, goombaParent);
+        goomba.GetComponent<Enemy>().chaseDistance = 20f;
     }
 
     private void generateCoin() {
