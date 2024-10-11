@@ -47,7 +47,7 @@ public class SurvivalController : MonoBehaviour
 
         // Spawn Goombas
         for (int i = 0; i < goombaCount; ++i){
-            GenerateGoomba();
+            GenerateGoomba(true);
         }
         Debug.Log(goombaParent.childCount);
 
@@ -64,7 +64,7 @@ public class SurvivalController : MonoBehaviour
     // Update is called once per frame
     void Update() {
         if (goombaParent.childCount < goombaCount) {
-            GenerateGoomba();
+            GenerateGoomba(false);
         }
         if (coinParent.childCount < coinCount) {
             GenerateCoin();
@@ -102,12 +102,18 @@ public class SurvivalController : MonoBehaviour
         bgGoomba.GetComponent<UnityEngine.UI.Text>().text = goombaDifficulty.ToString();
     }
 
-    private void GenerateGoomba() {
+    private void GenerateGoomba(bool start) {
         float x = Random.Range(-19, 19);
         float z = Random.Range(-19, 19);
 
         //Prevent goombas from spawning near the
-        while (Mathf.Abs(x) < 5 || Mathf.Abs(z) < 5) {
+        if (start){
+            while (Mathf.Abs(x) < 5 || Mathf.Abs(z) < 5) {
+                x = Random.Range(-19, 19);
+                z = Random.Range(-19, 19);
+            }
+        }
+        else{
             x = Random.Range(-19, 19);
             z = Random.Range(-19, 19);
         }
