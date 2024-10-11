@@ -1,3 +1,4 @@
+using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -32,6 +33,18 @@ public class SurvivalController : MonoBehaviour
     // Start is called before the first frame update
     void Start() {
 
+        string json = File.ReadAllText(Application.dataPath + "/variables.json");
+        GameVariables gameDifficulty = JsonUtility.FromJson<GameVariables>(json);
+        marioSpeedDifficulty = gameDifficulty.marioSpeed;
+        marioJumpDifficulty = gameDifficulty.marioJump;
+        densityDifficulty = gameDifficulty.firebar;
+        goombaDifficulty = gameDifficulty.goomba;
+
+        changeMarioSpeed(marioSpeedDifficulty);
+        changeMarioJump(marioJumpDifficulty);
+        changeDensity(densityDifficulty);
+        changeGoomba(goombaDifficulty);
+
         // Spawn Goombas
         for (int i = 0; i < goombaCount; ++i){
             GenerateGoomba();
@@ -42,6 +55,10 @@ public class SurvivalController : MonoBehaviour
         for (int i = 0; i < coinCount; ++i) {
             GenerateCoin();
         }
+
+
+
+
     }
 
     // Update is called once per frame

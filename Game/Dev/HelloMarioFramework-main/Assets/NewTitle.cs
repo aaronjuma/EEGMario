@@ -77,10 +77,16 @@ namespace HelloMarioFramework
         private Text goomba;
         [SerializeField]
         private Text diff;
+        [SerializeField]
+        private Text gamemode;
 
         //Hub world scene
         [SerializeField]
-        private SceneReference hubScene;
+        private SceneReference level1;
+        [SerializeField]
+        private SceneReference survival;
+
+        private SceneReference chosenScene;
         
         void Start()
         {
@@ -92,8 +98,9 @@ namespace HelloMarioFramework
             movementAction.action.Enable();
 
             //Remember scene information
+            chosenScene = level1;
             LoadingScreen.titleScene = SceneManager.GetActiveScene().path;
-            LoadingScreen.hubScene = hubScene.ScenePath;
+            LoadingScreen.hubScene = SceneManager.GetActiveScene().path;
 
 #if (UNITY_STANDALONE && !UNITY_EDITOR)
             //Disable mouse cursor on windows standalone
@@ -157,7 +164,7 @@ namespace HelloMarioFramework
                             buttonDown = true;
                             audioPlayer.PlayOneShot(moveSFX);
                             index--;
-                            if (index < 0) index = 4;
+                            if (index < 0) index = 5;
                             moveSelectors();
                         }
                         //Up
@@ -166,13 +173,19 @@ namespace HelloMarioFramework
                             buttonDown = true;
                             audioPlayer.PlayOneShot(moveSFX);
                             index++;
-                            if (index > 4) index = 0;
+                            if (index > 5) index = 0;
                             moveSelectors();
                         }
                         //Left
                         else if (!buttonDown && x_axis < -0.5f){
                             buttonDown = true;
-                            if (index != 4){
+                            if (index == 0) {
+                                int level = getLevelID();
+                                level--;
+                                if(level < 0) level = 0;
+                                changeLevelText(level);
+                            }
+                            else if (index != 5 && index != 0){
                                 int val = int.Parse(currentText.text);
                                 val--;
                                 if(val < 1) val = 1;
@@ -182,7 +195,7 @@ namespace HelloMarioFramework
                                     diff.color = Color.blue;
                                 }
                             }
-                            else{
+                            else if (index == 5){
                                 int val = getDifficultyID();
                                 val--;
                                 if(val < 0) val = 0;
@@ -192,7 +205,13 @@ namespace HelloMarioFramework
                         //Right
                         else if (!buttonDown && x_axis > 0.5f){
                             buttonDown = true;
-                            if (index != 4){
+                            if(index == 0) {
+                                int level = getLevelID();
+                                level++;
+                                if(level > 1) level = 1;
+                                changeLevelText(level); 
+                            }
+                            else if (index != 5 && index != 0){
                                 int val = int.Parse(currentText.text);
                                 val++;
                                 if(val > 10) val = 10;
@@ -202,7 +221,7 @@ namespace HelloMarioFramework
                                     diff.color = Color.blue;
                                 }
                             }
-                            else{
+                            else if (index == 5){
                                 int val = getDifficultyID();
                                 val++;
                                 if(val > 4) val = 4;
@@ -230,61 +249,69 @@ namespace HelloMarioFramework
 
         private void moveSelectors() {
             float selector_x = -37.5f;
-            float right_x = 13.5f;
-            float left_x = -89f;
+            float right_x = 10f;
+            float left_x = -85f;
 
             float small_left_x = -89f;
             float small_selector_x = -37.5f;
             float small_right_x = 13.5f;
             float small_selector_width = 45f;
-
             float large_selector_width = 125f;
 
 
             if (index == 0){
-                selector.GetComponent<RectTransform>().sizeDelta = new Vector2(45f, 42f);
-                selector.GetComponent<RectTransform>().anchoredPosition = 61f * Vector2.up + selector_x * Vector2.right;
-                rightArrow.GetComponent<RectTransform>().anchoredPosition = 76f * Vector2.up + right_x * Vector2.right;
-                leftArrow.GetComponent<RectTransform>().anchoredPosition = 49f * Vector2.up + left_x * Vector2.right;
+                selector.GetComponent<RectTransform>().sizeDelta = new Vector2(200f, 42f);
+                selector.GetComponent<RectTransform>().anchoredPosition = 81f * Vector2.up + 0f * Vector2.right;
+                rightArrow.GetComponent<RectTransform>().anchoredPosition = 81f * Vector2.up + 120f * Vector2.right;
+                leftArrow.GetComponent<RectTransform>().anchoredPosition = 81f * Vector2.up + -120f * Vector2.right;
             }
             if (index == 1){
-                selector.GetComponent<RectTransform>().anchoredPosition = 18f * Vector2.up + selector_x * Vector2.right;
-                rightArrow.GetComponent<RectTransform>().anchoredPosition = 32f * Vector2.up + right_x * Vector2.right;
-                leftArrow.GetComponent<RectTransform>().anchoredPosition = 5f * Vector2.up + left_x * Vector2.right;
+                selector.GetComponent<RectTransform>().sizeDelta = new Vector2(45f, 42f);
+                selector.GetComponent<RectTransform>().anchoredPosition = 30f * Vector2.up + small_selector_x * Vector2.right;
+                rightArrow.GetComponent<RectTransform>().anchoredPosition = 30f * Vector2.up + right_x * Vector2.right;
+                leftArrow.GetComponent<RectTransform>().anchoredPosition = 30f * Vector2.up + left_x * Vector2.right;
             }
             if (index == 2){
-                selector.GetComponent<RectTransform>().anchoredPosition = -25f * Vector2.up + selector_x * Vector2.right;
-                rightArrow.GetComponent<RectTransform>().anchoredPosition = -11f * Vector2.up + right_x * Vector2.right;
-                leftArrow.GetComponent<RectTransform>().anchoredPosition = -37f * Vector2.up + left_x * Vector2.right;
+                selector.GetComponent<RectTransform>().anchoredPosition = -15f * Vector2.up + small_selector_x * Vector2.right;
+                rightArrow.GetComponent<RectTransform>().anchoredPosition = -15f * Vector2.up + right_x * Vector2.right;
+                leftArrow.GetComponent<RectTransform>().anchoredPosition = -15f * Vector2.up + left_x * Vector2.right;
             }
             if (index == 3){
-                selector.GetComponent<RectTransform>().sizeDelta = new Vector2(45f, 42f);
-                selector.GetComponent<RectTransform>().anchoredPosition = -68f * Vector2.up + selector_x * Vector2.right;
-                rightArrow.GetComponent<RectTransform>().anchoredPosition = -54f * Vector2.up + right_x * Vector2.right;
-                leftArrow.GetComponent<RectTransform>().anchoredPosition = -81f * Vector2.up + left_x * Vector2.right;
+                selector.GetComponent<RectTransform>().anchoredPosition = -60f * Vector2.up + small_selector_x * Vector2.right;
+                rightArrow.GetComponent<RectTransform>().anchoredPosition = -60f * Vector2.up + right_x * Vector2.right;
+                leftArrow.GetComponent<RectTransform>().anchoredPosition = -60f * Vector2.up + left_x * Vector2.right;
             }
             if (index == 4){
+                selector.GetComponent<RectTransform>().sizeDelta = new Vector2(45f, 42f);
+                selector.GetComponent<RectTransform>().anchoredPosition = -100f * Vector2.up + small_selector_x * Vector2.right;
+                rightArrow.GetComponent<RectTransform>().anchoredPosition = -100f * Vector2.up + right_x * Vector2.right;
+                leftArrow.GetComponent<RectTransform>().anchoredPosition = -100f * Vector2.up + left_x * Vector2.right;
+            }
+            if (index == 5){
                 selector.GetComponent<RectTransform>().sizeDelta = new Vector2(125f, 42f);
-                selector.GetComponent<RectTransform>().anchoredPosition = -115f * Vector2.up + 1.6f * Vector2.right;
-                rightArrow.GetComponent<RectTransform>().anchoredPosition = -100f * Vector2.up + 92f * Vector2.right;
-                leftArrow.GetComponent<RectTransform>().anchoredPosition = -127f * Vector2.up + -89f * Vector2.right;
+                selector.GetComponent<RectTransform>().anchoredPosition = -150f * Vector2.up + 1.6f * Vector2.right;
+                rightArrow.GetComponent<RectTransform>().anchoredPosition = -150f * Vector2.up + 84.1f * Vector2.right;
+                leftArrow.GetComponent<RectTransform>().anchoredPosition = -150f * Vector2.up + -80.9f * Vector2.right;
             }
         }
 
         private Text selectedText() {
             if (index == 0){
-                return marioSpeed;
+                return gamemode;
             }
             if (index == 1){
+                return marioSpeed;
+            }
+            else if (index == 2){
                 return marioJump;
             }
-            if (index == 2){
+            else if (index == 3){
                 return firebar;
             }
-            if (index == 3) {
+            else if (index == 4) {
                 return goomba;
             }
-            else{
+            else {
                 return diff;
             }
         } 
@@ -302,6 +329,15 @@ namespace HelloMarioFramework
             }
             if (diff.text.Equals("Extreme")){
                 return 4;
+            }
+            else {
+                return 0;
+            }
+        }
+
+        private int getLevelID() {
+            if (gamemode.text.Equals("Survival")){
+                return 1;
             }
             else {
                 return 0;
@@ -352,6 +388,20 @@ namespace HelloMarioFramework
             }
         }
 
+
+        private void changeLevelText(int id) {
+            if (id == 1){
+                gamemode.text = "Survival";
+                dataText.text = "Mario Speed:\nMario Jump:\nDensity:\nGoomba Speed:";
+                chosenScene = survival;
+            }
+            else {
+                gamemode.text = "Level 1";
+                dataText.text = "Mario Speed:\nMario Jump:\nFirebar:\nGoomba Speed:";
+                chosenScene = level1;
+            }
+        }
+
         private void UpdateFileSelectText()
         {
             //Get file character
@@ -382,7 +432,7 @@ namespace HelloMarioFramework
         {
             selected = true;
             yield return new WaitForSeconds(1.5f);
-            LoadingScreen.scene = hubScene.ScenePath;
+            LoadingScreen.scene = chosenScene.ScenePath;
             FadeControl.singleton.FadeToLoadingScreen();
         }
     }
