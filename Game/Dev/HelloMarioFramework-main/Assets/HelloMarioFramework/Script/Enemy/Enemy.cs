@@ -9,6 +9,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 namespace HelloMarioFramework
 {
@@ -36,14 +37,21 @@ namespace HelloMarioFramework
         private static int stompHash = Animator.StringToHash("Stomp");
         private static int speedHash = Animator.StringToHash("Speed");
         private static int groundHash = Animator.StringToHash("onGround");
+        private static int waitSpeedHash = Animator.StringToHash("WaitSpeed"); 
 
         //Stompable
         [SerializeField]
         protected bool stompable = true;
+        
+
+        public bool isRoamer = false;
+        private bool isRoaming = true;
 
         public float speedMultiplier = 1f;
         public float chaseDistance = 10f;
         
+        private Vector3 waypoint;
+
         void Start()
         {
             myRigidBody = GetComponent<Rigidbody>();
@@ -62,6 +70,10 @@ namespace HelloMarioFramework
             {
                 Vector3 i = new Vector3(myRigidBody.velocity.x, 0f, myRigidBody.velocity.z);
                 animator.SetFloat(speedHash, i.magnitude);
+            }
+            if (isRoamer && isRoaming) {
+                Vector3 i = new Vector3(myRigidBody.velocity.x, 0f, myRigidBody.velocity.z);
+                animator.SetFloat(waitSpeedHash, 5f);
             }
         }
 
@@ -110,7 +122,7 @@ namespace HelloMarioFramework
             //Manage drag
             if (!onGround) myRigidBody.drag = 0f;
             else if (chase) myRigidBody.drag = 1.7f;
-            else myRigidBody.drag = 100f;
+            // else myRigidBody.drag = 100f;
 
             //Cooldown
             if (!cooldown)
@@ -118,6 +130,7 @@ namespace HelloMarioFramework
                 //Start chase
                 if (onGround && !chase && Player.singleton.CanBeChased(transform.position, chaseDistance))
                 {
+                    isRoaming = false;
                     chase = true;
                     StartCoroutine(Cooldown(0.9f));
                     audioPlayer.PlayOneShot(voiceSFX);
@@ -129,6 +142,8 @@ namespace HelloMarioFramework
                     chase = false;
                     StartCoroutine(Cooldown(1.1f));
                     if (onGround) myRigidBody.velocity = Vector3.zero;
+                    isRoaming = true;
+                    FindNewWaypoint();
                 }
 
                 //Chase
@@ -138,7 +153,7 @@ namespace HelloMarioFramework
                     Player.singleton.LookAtMe(transform);
 
                     //Move in direction
-                    myRigidBody.velocity += transform.forward * 12.5f * Time.fixedDeltaTime; //0.25f
+                    myRigidBody.velocity += transform.forward * 20f * Time.fixedDeltaTime; //0.25f
 
                     //Speed cap
                     Vector2 mvmntSpeed = new Vector2(myRigidBody.velocity.x, myRigidBody.velocity.z);
@@ -147,6 +162,40 @@ namespace HelloMarioFramework
                         mvmntSpeed.Normalize();
                         mvmntSpeed = mvmntSpeed * 4f * speedMultiplier;
                         myRigidBody.velocity = new Vector3(mvmntSpeed.x, myRigidBody.velocity.y, mvmntSpeed.y);
+                    }
+                }
+                // Roaming
+                else {
+                    if (isRoamer) {
+                        if (isRoaming) {
+                            if (waypoint == Vector3.zero) {
+                                FindNewWaypoint();
+                            }
+                            if (Vector2.Distance(transform.position, waypoint) <= 1f) {
+                                FindNewWaypoint();
+                            }
+
+                            if (!chase) {
+                                transform.LookAt(waypoint);
+
+                                myRigidBody.velocity += transform.forward * 2f * Time.fixedDeltaTime; //0.25f
+
+                                //Speed cap
+                                Vector2 mvmntSpeed = new Vector2(myRigidBody.velocity.x, myRigidBody.velocity.z);
+                                if (mvmntSpeed.sqrMagnitude > 1f)
+                                {
+                                    mvmntSpeed.Normalize();
+                                    mvmntSpeed = mvmntSpeed * 1f;
+                                    myRigidBody.velocity = new Vector3(mvmntSpeed.x, myRigidBody.velocity.y, mvmntSpeed.y);
+                                }
+                            }
+                        }
+                        else {
+                            StartCoroutine(Cooldown(0.5f));
+                        }
+                    }
+                    else {
+                        StartCoroutine(Cooldown(0.5f));
                     }
                 }
             }
@@ -178,6 +227,16 @@ namespace HelloMarioFramework
             yield return new WaitForSeconds(f); //0.9f
             cooldown = false;
         }
+
+        private void FindNewWaypoint() {
+            waypoint = transform.position + Random.insideUnitSphere * 7f;
+            waypoint.y = transform.position.y;
+            while (Mathf.Abs(waypoint.x) > 19.5 || Mathf.Abs(waypoint.z) > 19.5) {
+                waypoint = transform.position + Random.insideUnitSphere * 7f;
+                waypoint.y = transform.position.y;
+            }
+        }
+
 
     }
 }

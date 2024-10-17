@@ -11,7 +11,7 @@ public class SurvivalController : MonoBehaviour
     [SerializeField] private GameObject coinPrefab;
     [SerializeField] private Transform goombaParent;
     [SerializeField] private Transform coinParent;
-    [SerializeField] private float goombaChaseDistance = 10f;
+    [SerializeField] private float goombaChaseDistance = 2f;
     [SerializeField] private int goombaCount = 15;
     [SerializeField] private int coinCount = 5;
 
@@ -123,6 +123,7 @@ public class SurvivalController : MonoBehaviour
         GameObject goomba = Instantiate(goombaPrefab, pos, currentRotation, goombaParent);
         goomba.GetComponent<Enemy>().chaseDistance = goombaChaseDistance;
         goomba.GetComponent<Enemy>().speedMultiplier = goombasSpeed;
+        goomba.GetComponent<Enemy>().isRoamer = true;
     }
 
     private void GenerateCoin() {
