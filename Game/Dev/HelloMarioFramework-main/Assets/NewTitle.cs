@@ -346,45 +346,89 @@ namespace HelloMarioFramework
 
 
         private void changeDifficulty(int id) {
-            if (id == 1){
-                diff.text = "Easy";
-                diff.color = Color.green;
-                marioSpeed.text = "1";
-                marioJump.text = "1";
-                goomba.text = "1";
-                firebar.text = "1";
+            if (getLevelID() == 0) {
+                if (id == 1){
+                    diff.text = "Easy";
+                    diff.color = Color.green;
+                    marioSpeed.text = "1";
+                    marioJump.text = "1";
+                    goomba.text = "1";
+                    firebar.text = "1";
+                }
+                else if (id == 2){
+                    diff.text = "Medium";
+                    diff.color = Color.yellow;
+                    marioSpeed.text = "3";
+                    marioJump.text = "3";
+                    goomba.text = "3";
+                    firebar.text = "4";
+                }
+                else if (id == 3){
+                    diff.text = "Hard";
+                    diff.color = Color.red;
+                    marioSpeed.text = "5";
+                    marioJump.text = "5";
+                    goomba.text = "5";
+                    firebar.text = "6";
+                }
+                else if (id == 4){
+                    diff.text = "Extreme";
+                    diff.color = Color.magenta;
+                    marioSpeed.text = "7";
+                    marioJump.text = "7";
+                    goomba.text = "7";
+                    firebar.text = "7";
+                }
+                else {
+                    diff.text = "Custom";
+                    diff.color = Color.blue;
+                    marioSpeed.text = "1";
+                    marioJump.text = "9";
+                    goomba.text = "7";
+                    firebar.text = "8";
+                }
             }
-            else if (id == 2){
-                diff.text = "Medium";
-                diff.color = Color.yellow;
-                marioSpeed.text = "3";
-                marioJump.text = "3";
-                goomba.text = "3";
-                firebar.text = "4";
-            }
-            else if (id == 3){
-                diff.text = "Hard";
-                diff.color = Color.red;
-                marioSpeed.text = "5";
-                marioJump.text = "5";
-                goomba.text = "5";
-                firebar.text = "6";
-            }
-            else if (id == 4){
-                diff.text = "Extreme";
-                diff.color = Color.magenta;
-                marioSpeed.text = "7";
-                marioJump.text = "7";
-                goomba.text = "7";
-                firebar.text = "7";
-            }
-            else {
-                diff.text = "Custom";
-                diff.color = Color.blue;
-                marioSpeed.text = "1";
-                marioJump.text = "9";
-                goomba.text = "7";
-                firebar.text = "8";
+            else{
+                if (id == 1){
+                    diff.text = "Easy";
+                    diff.color = Color.green;
+                    marioSpeed.text = "1";
+                    marioJump.text = "1";
+                    goomba.text = "1";
+                    firebar.text = "1";
+                }
+                else if (id == 2){
+                    diff.text = "Medium";
+                    diff.color = Color.yellow;
+                    marioSpeed.text = "3";
+                    marioJump.text = "3";
+                    goomba.text = "3";
+                    firebar.text = "4";
+                }
+                else if (id == 3){
+                    diff.text = "Hard";
+                    diff.color = Color.red;
+                    marioSpeed.text = "6";
+                    marioJump.text = "5";
+                    goomba.text = "5";
+                    firebar.text = "4";
+                }
+                else if (id == 4){
+                    diff.text = "Extreme";
+                    diff.color = Color.magenta;
+                    marioSpeed.text = "7";
+                    marioJump.text = "7";
+                    goomba.text = "7";
+                    firebar.text = "7";
+                }
+                else {
+                    diff.text = "Custom";
+                    diff.color = Color.blue;
+                    marioSpeed.text = "1";
+                    marioJump.text = "9";
+                    goomba.text = "7";
+                    firebar.text = "8";
+                }
             }
         }
 
