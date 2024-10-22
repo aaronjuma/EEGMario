@@ -39,12 +39,13 @@ namespace HelloMarioFramework
             if (p != null)
             {
                 p.PlaySound(coinSFX);
-                if (starSpawner != null)
-                {
-                    GameObject o = Instantiate(coinAnimObj);
-                    o.transform.position = transform.position;
-                    o.GetComponentInChildren<Text>().text = starSpawner.Notify().ToString();
-                }
+                // if (starSpawner != null)
+                // {
+                //     GameObject o = Instantiate(coinAnimObj);
+                //     o.transform.position = transform.position;
+                //     o.GetComponentInChildren<Text>().text = starSpawner.Notify().ToString();
+                // }
+                SaveData.save.AddCoins(2);
                 Destroy(gameObject);
             }
         }

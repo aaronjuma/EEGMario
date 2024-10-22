@@ -124,6 +124,7 @@ public class SurvivalController : MonoBehaviour
         goomba.GetComponent<Enemy>().chaseDistance = goombaChaseDistance;
         goomba.GetComponent<Enemy>().speedMultiplier = goombasSpeed;
         goomba.GetComponent<Enemy>().isRoamer = true;
+        goomba.GetComponent<Enemy>().DropsCoins(true);
     }
 
     private void GenerateCoin() {

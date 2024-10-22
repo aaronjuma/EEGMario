@@ -42,6 +42,8 @@ namespace HelloMarioFramework
         //Stompable
         [SerializeField]
         protected bool stompable = true;
+        [SerializeField]
+        private bool dropsCoin = false;
         
 
         public bool isRoamer = false;
@@ -51,6 +53,9 @@ namespace HelloMarioFramework
         public float chaseDistance = 10f;
         
         private Vector3 waypoint;
+
+        [SerializeField]
+        private GameObject coinPrefab;
 
         void Start()
         {
@@ -86,6 +91,12 @@ namespace HelloMarioFramework
             myCollider.enabled = false;
             myRigidBody.isKinematic = true;
             myRigidBody.detectCollisions = false;
+
+            if (dropsCoin) {
+                Quaternion currentRotation = new Quaternion();
+                currentRotation.eulerAngles = new Vector3(0, 90, 0);
+                Instantiate(coinPrefab, transform.position + Vector3.up, currentRotation);
+            }
         }
 
         //What to do when hurting player. Override this.
@@ -237,6 +248,9 @@ namespace HelloMarioFramework
             }
         }
 
+        public void DropsCoins(bool dropCoin) {
+            dropsCoin = dropCoin;
+        }
 
     }
 }
