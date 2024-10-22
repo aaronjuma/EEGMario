@@ -56,7 +56,7 @@ public class SurvivalController : MonoBehaviour
             GenerateCoin();
         }
 
-
+        showStats(false);
 
 
     }
