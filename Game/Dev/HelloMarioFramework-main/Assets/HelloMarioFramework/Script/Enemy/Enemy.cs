@@ -87,16 +87,15 @@ namespace HelloMarioFramework
         {
             chase = false;
             cooldown = true;
-            animator.SetBool(stompHash, true);
-            myCollider.enabled = false;
-            myRigidBody.isKinematic = true;
-            myRigidBody.detectCollisions = false;
-
             if (dropsCoin) {
                 Quaternion currentRotation = new Quaternion();
                 currentRotation.eulerAngles = new Vector3(0, 90, 0);
                 Instantiate(coinPrefab, transform.position + Vector3.up, currentRotation);
             }
+            animator.SetBool(stompHash, true);
+            myCollider.enabled = false;
+            myRigidBody.isKinematic = true;
+            myRigidBody.detectCollisions = false;
         }
 
         //What to do when hurting player. Override this.
@@ -164,7 +163,7 @@ namespace HelloMarioFramework
                     Player.singleton.LookAtMe(transform);
 
                     //Move in direction
-                    myRigidBody.velocity += transform.forward * 20f * Time.fixedDeltaTime; //0.25f
+                    myRigidBody.velocity += transform.forward * 25f * Time.fixedDeltaTime; //0.25f
 
                     //Speed cap
                     Vector2 mvmntSpeed = new Vector2(myRigidBody.velocity.x, myRigidBody.velocity.z);
@@ -240,11 +239,13 @@ namespace HelloMarioFramework
         }
 
         private void FindNewWaypoint() {
-            waypoint = transform.position + Random.insideUnitSphere * 7f;
-            waypoint.y = transform.position.y;
-            while (Mathf.Abs(waypoint.x) > 19.5 || Mathf.Abs(waypoint.z) > 19.5) {
+            if (isRoamer) {
                 waypoint = transform.position + Random.insideUnitSphere * 7f;
                 waypoint.y = transform.position.y;
+                while (Mathf.Abs(waypoint.x) > 19.5 || Mathf.Abs(waypoint.z) > 19.5) {
+                    waypoint = transform.position + Random.insideUnitSphere * 7f;
+                    waypoint.y = transform.position.y;
+                }
             }
         }
 

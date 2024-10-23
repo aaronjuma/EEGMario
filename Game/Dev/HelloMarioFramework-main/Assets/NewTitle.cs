@@ -416,10 +416,10 @@ namespace HelloMarioFramework
                 else if (id == 4){
                     diff.text = "Extreme";
                     diff.color = Color.magenta;
-                    marioSpeed.text = "7";
-                    marioJump.text = "7";
-                    goomba.text = "7";
-                    firebar.text = "7";
+                    marioSpeed.text = "8";
+                    marioJump.text = "8";
+                    goomba.text = "8";
+                    firebar.text = "9";
                 }
                 else {
                     diff.text = "Custom";
