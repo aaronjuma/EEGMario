@@ -16,12 +16,7 @@ public class GameBLESender : MonoBehaviour
 
     public static bool IsGameSending;
 
-    public Text marioSpeedValue;
-    public Text marioJumpValue;
-    public Text goombaValue;
-    public Text firebarValue;
-    public Player marioScript;
-    public GameController controller;
+    // public GameController controller;
 
     void Awake()
     {
@@ -36,15 +31,10 @@ public class GameBLESender : MonoBehaviour
 
     private void Update()
     {
-        SendString("GameVariable,MarioSpeed,float," + 0f + ",1,5");
-        SendString("GameVariable,MarioJump,float," + 0f + ",1,3");
-        SendString("GameVariable,GoombaSpeed,float," + 0f + ",2,6");
-        SendString("GameVariable,FirebarSpeed,float," + 0f + ",2,6");
-        
-        marioSpeedValue.text = controller.marioSpeedDifficulty.ToString();
-        marioJumpValue.text = controller.marioJumpDifficulty.ToString();
-        goombaValue.text = controller.goombaDifficulty.ToString();
-        firebarValue.text = controller.firebarDifficulty.ToString();
+        SendString("GameVariable,Difficulty,float," + 0f + ",1,5");
+        // SendString("GameVariable,MarioJump,float," + 0f + ",1,3");
+        // SendString("GameVariable,GoombaSpeed,float," + 0f + ",2,6");
+        // SendString("GameVariable,FirebarSpeed,float," + 0f + ",2,6");
     }
 	        
     private void Init()

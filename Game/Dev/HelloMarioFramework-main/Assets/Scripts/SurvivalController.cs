@@ -26,6 +26,7 @@ public class SurvivalController : MonoBehaviour
     public int marioJumpDifficulty = 1;
     public int densityDifficulty = 1;
     public int goombaDifficulty = 1;
+    public int difficulty = 1;
 
     public Player mario;
     private float goombasSpeed = 1f;
@@ -39,11 +40,13 @@ public class SurvivalController : MonoBehaviour
         marioJumpDifficulty = gameDifficulty.marioJump;
         densityDifficulty = gameDifficulty.firebar;
         goombaDifficulty = gameDifficulty.goomba;
+        difficulty = gameDifficulty.difficulty;
 
         changeMarioSpeed(marioSpeedDifficulty);
         changeMarioJump(marioJumpDifficulty);
         changeDensity(densityDifficulty);
         changeGoomba(goombaDifficulty);
+        changeDifficulty(difficulty);
 
         // Spawn Goombas
         for (int i = 0; i < goombaCount; ++i){
@@ -94,6 +97,11 @@ public class SurvivalController : MonoBehaviour
         }
         if(Input.GetKeyDown(KeyCode.F1)) {
             showStats(!bg.activeSelf);
+        }
+        if(Input.GetKeyDown(KeyCode.F2)) {
+            difficulty++;
+            if (difficulty > 10) difficulty = 1;
+            changeDifficulty(difficulty);
         }
 
         bgSpeed.GetComponent<UnityEngine.UI.Text>().text = marioSpeedDifficulty.ToString();
@@ -294,5 +302,86 @@ public class SurvivalController : MonoBehaviour
             GameObject goomba = goombaParent.transform.GetChild(i).gameObject;
             goomba.GetComponent<Enemy>().speedMultiplier = goombasSpeed;
         }
+    }
+
+
+    public void changeDifficulty(int desiredDifficulty) {
+        switch(desiredDifficulty){
+            case 1:
+                marioSpeedDifficulty = 1;
+                marioJumpDifficulty = 1;
+                goombaDifficulty = 1;
+                densityDifficulty = 1;
+                break;
+            case 2:
+                marioSpeedDifficulty = 2;
+                marioJumpDifficulty = 2;
+                densityDifficulty = 3;
+                goombaDifficulty = 2;
+                break;
+            case 3:
+                marioSpeedDifficulty = 3;
+                marioJumpDifficulty = 3;
+                densityDifficulty = 4;
+                goombaDifficulty = 3;
+                break;
+            case 4: 
+                marioSpeedDifficulty = 4;
+                marioJumpDifficulty = 4;
+                densityDifficulty = 5;
+                goombaDifficulty = 4;
+                break;
+            case 5: 
+                marioSpeedDifficulty = 5;
+                marioJumpDifficulty = 5;
+                densityDifficulty = 6;
+                goombaDifficulty = 4;
+                break;
+            case 6: 
+                marioSpeedDifficulty = 6;
+                marioJumpDifficulty = 5;
+                densityDifficulty = 5;
+                goombaDifficulty = 4;
+                break;
+            case 7: 
+                marioSpeedDifficulty = 7;
+                marioJumpDifficulty = 6;
+                densityDifficulty = 6;
+                goombaDifficulty = 5;
+                break;
+            case 8: 
+                marioSpeedDifficulty = 8;
+                marioJumpDifficulty = 7;
+                densityDifficulty = 7;
+                goombaDifficulty = 6;
+                break;
+            case 9: 
+                marioSpeedDifficulty = 8;
+                marioJumpDifficulty = 8;
+                densityDifficulty = 8;
+                goombaDifficulty = 8;
+                break;
+            case 10: 
+                marioSpeedDifficulty = 8;
+                marioJumpDifficulty = 8;
+                densityDifficulty = 10;
+                goombaDifficulty = 9;
+                break;
+            default: break;
+        }
+
+        changeMarioSpeed(marioSpeedDifficulty);
+        changeMarioJump(marioJumpDifficulty);
+        changeDensity(densityDifficulty);
+        changeGoomba(goombaDifficulty);
+
+        GameVariables newvar = new GameVariables();
+        newvar.marioJump = marioJumpDifficulty;
+        newvar.marioSpeed = marioSpeedDifficulty;
+        newvar.goomba = goombaDifficulty;
+        newvar.firebar = densityDifficulty;
+        newvar.difficulty = difficulty;
+        string json = JsonUtility.ToJson(newvar);
+        File.WriteAllText(Application.dataPath + "/variables.json", json);
     }
 }

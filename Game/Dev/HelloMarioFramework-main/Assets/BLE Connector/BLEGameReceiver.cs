@@ -10,8 +10,9 @@ using HelloMarioFramework;
 
 public class BLEGameReceiver : MonoBehaviour
 {
-    public Player marioScript;
-    public GameController controller;
+    // public Player marioScript;
+    // public GameController controller;
+    public SurvivalController controller;
 
     private Thread _receiveThread;
     private UdpClient _client;
@@ -89,18 +90,19 @@ public class BLEGameReceiver : MonoBehaviour
             //if (words[i] == "BallSpeed")
             //    Ball.Speed = float.Parse(words[i + 1]);
 
-            if (words[i] == "MarioSpeed"){
-                controller.changeMarioSpeed(1);
+            if (words[i] == "Difficulty"){
+                controller.difficulty++;
+                controller.changeDifficulty(controller.difficulty);
             }
-            if (words[i] == "MarioJump"){
-                controller.changeMarioJump(1);
-            }
-            if (words[i] == "FirebarSpeed"){
-                controller.changeFirebar(1);
-            }
-            if (words[i] == "GoombaSpeed"){
-                controller.changeGoomba(1);
-            }
+            // if (words[i] == "MarioJump"){
+            //     controller.changeMarioJump(1);
+            // }
+            // if (words[i] == "FirebarSpeed"){
+            //     controller.changeFirebar(1);
+            // }
+            // if (words[i] == "GoombaSpeed"){
+            //     controller.changeGoomba(1);
+            // }
             
         }
     }

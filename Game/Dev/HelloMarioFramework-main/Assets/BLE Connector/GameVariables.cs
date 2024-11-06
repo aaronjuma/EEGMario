@@ -11,5 +11,6 @@ namespace HelloMarioFramework
         public int marioSpeed;
         public int goomba;
         public int firebar;
+        public int difficulty;
     }
 }
