@@ -16,7 +16,7 @@ public class GameBLESender : MonoBehaviour
 
     public static bool IsGameSending;
 
-    // public GameController controller;
+    public SurvivalController controller;
 
     void Awake()
     {
@@ -31,7 +31,7 @@ public class GameBLESender : MonoBehaviour
 
     private void Update()
     {
-        SendString("GameVariable,Difficulty,float," + 0f + ",1,5");
+        SendString("GameVariable,Difficulty,int," + controller.difficulty + ",0,10");
         // SendString("GameVariable,MarioJump,float," + 0f + ",1,3");
         // SendString("GameVariable,GoombaSpeed,float," + 0f + ",2,6");
         // SendString("GameVariable,FirebarSpeed,float," + 0f + ",2,6");

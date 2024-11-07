@@ -30,6 +30,7 @@ public class SurvivalController : MonoBehaviour
 
     public Player mario;
     private float goombasSpeed = 1f;
+    private float prevGoombaSpeed = 1f;
 
     // Start is called before the first frame update
     void Start() {
@@ -52,7 +53,7 @@ public class SurvivalController : MonoBehaviour
         for (int i = 0; i < goombaCount; ++i){
             GenerateGoomba(true);
         }
-        Debug.Log(goombaParent.childCount);
+        // Debug.Log(goombaParent.childCount);
 
         // Spawn coins
         for (int i = 0; i < coinCount; ++i) {
@@ -72,7 +73,13 @@ public class SurvivalController : MonoBehaviour
         if (coinParent.childCount < coinCount) {
             GenerateCoin();
         }
-
+        if (prevGoombaSpeed != goombasSpeed) {
+            for(int i = 0; i < goombaParent.childCount; i++) {
+                GameObject goomba = goombaParent.transform.GetChild(i).gameObject;
+                goomba.GetComponent<Enemy>().speedMultiplier = goombasSpeed;
+            }
+        }
+        prevGoombaSpeed = goombasSpeed;
 
 
         if(Input.GetKeyDown(KeyCode.Alpha1)) {
@@ -185,7 +192,7 @@ public class SurvivalController : MonoBehaviour
                 goombaCount = 22;
                 break;
             case 10: 
-                goombaCount = 25;
+                goombaCount = 30;
                 break;
             default: break;
         }
@@ -297,11 +304,6 @@ public class SurvivalController : MonoBehaviour
                 break;
             default: break;
         }
-
-        for(int i = 0; i < goombaParent.childCount; i++) {
-            GameObject goomba = goombaParent.transform.GetChild(i).gameObject;
-            goomba.GetComponent<Enemy>().speedMultiplier = goombasSpeed;
-        }
     }
 
 
@@ -362,10 +364,10 @@ public class SurvivalController : MonoBehaviour
                 goombaDifficulty = 8;
                 break;
             case 10: 
-                marioSpeedDifficulty = 8;
-                marioJumpDifficulty = 8;
+                marioSpeedDifficulty = 9;
+                marioJumpDifficulty = 9;
                 densityDifficulty = 10;
-                goombaDifficulty = 9;
+                goombaDifficulty = 10;
                 break;
             default: break;
         }
@@ -374,6 +376,7 @@ public class SurvivalController : MonoBehaviour
         changeMarioJump(marioJumpDifficulty);
         changeDensity(densityDifficulty);
         changeGoomba(goombaDifficulty);
+
 
         GameVariables newvar = new GameVariables();
         newvar.marioJump = marioJumpDifficulty;

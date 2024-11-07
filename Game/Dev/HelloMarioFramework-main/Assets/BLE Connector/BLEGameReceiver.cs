@@ -73,8 +73,6 @@ public class BLEGameReceiver : MonoBehaviour
 
         var words = data.Split(separators, StringSplitOptions.RemoveEmptyEntries);
 
-        Debug.Log(data);
-
         for (var i = 0; i < words.Length; i++)
         {
             //getting the values for the game variables that require to be updated -> this will change from game to game, you need
