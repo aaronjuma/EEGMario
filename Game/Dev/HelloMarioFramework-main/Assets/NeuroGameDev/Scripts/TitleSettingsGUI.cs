@@ -115,6 +115,7 @@ public class TitleSettingsGUI : MonoBehaviour
 
         //Debug.Log("Connecting to " + InteraxonInterface.userMuse);
         InteraxonInterfacer.Instance.connect();
+        this.scanButton.Select();
     }
 
     public void Disconnect()
@@ -122,6 +123,7 @@ public class TitleSettingsGUI : MonoBehaviour
         Debug.Log("Disconnect");
         //this.muse.disconnect();
         InteraxonInterfacer.Instance.disconnect();
+        this.scanButton.Select();
     }
 
     private void OnApplicationQuit()

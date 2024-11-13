@@ -69,6 +69,8 @@ namespace HelloMarioFramework
         [SerializeField]
         private GameObject settingsPanel;
 
+        bool backed = false;
+
 
         //Hub world scene
         [SerializeField]
@@ -125,7 +127,7 @@ namespace HelloMarioFramework
                 else
                 {
                     //Press A to select this file
-                    if (jumpAction.action.WasPressedThisFrame())
+                    if (jumpAction.action.WasPressedThisFrame() && settingsPanel.activeSelf == false)
                     {
                         if (index == 0){ 
                             musicPlayer.Stop();
@@ -144,7 +146,12 @@ namespace HelloMarioFramework
                             StartCoroutine(ChangeScene());
                         }
                         if (index == 1) {
-                            settingsPanel.SetActive(true);
+                            if (backed == true){
+                                backed = false;
+                            }
+                            else {
+                                settingsPanel.SetActive(true);
+                            }
                         }
                     }
                     //Movement keys
@@ -227,6 +234,10 @@ namespace HelloMarioFramework
             }
         }
 
+        public void BackButtonPressed() {
+            settingsPanel.SetActive(false);
+            backed = true;
+        }
 
         private void UpdateFileSelectText()
         {
