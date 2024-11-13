@@ -60,25 +60,6 @@ namespace HelloMarioFramework
         private RectTransform titleScreenTransform;
         private RectTransform fileSelectTransform;
 
-        [SerializeField]
-        private GameObject selector;
-        [SerializeField]
-        private GameObject leftArrow;
-        [SerializeField]
-        private GameObject rightArrow;
-
-        [SerializeField]
-        private Text marioSpeed;
-        [SerializeField]
-        private Text marioJump;
-        [SerializeField]
-        private Text firebar;
-        [SerializeField]
-        private Text goomba;
-        [SerializeField]
-        private Text diff;
-        [SerializeField]
-        private Text gamemode;
 
         //Hub world scene
         [SerializeField]
@@ -141,14 +122,14 @@ namespace HelloMarioFramework
                         audioPlayer.PlayOneShot(selectSFX);
                         audioPlayer.PlayOneShot(selectVoiceSFX);
 
-                        GameVariables newvar = new GameVariables();
-                        newvar.marioJump = int.Parse(marioJump.text);
-                        newvar.marioSpeed = int.Parse(marioSpeed.text);
-                        newvar.goomba = int.Parse(goomba.text);
-                        newvar.firebar = int.Parse(firebar.text);
-                        string json = JsonUtility.ToJson(newvar);
-                        File.WriteAllText(Application.dataPath + "/variables.json", json);
-                        Debug.Log(Application.dataPath + "/variables.json");
+                        // GameVariables newvar = new GameVariables();
+                        // newvar.marioJump = int.Parse(marioJump.text);
+                        // newvar.marioSpeed = int.Parse(marioSpeed.text);
+                        // newvar.goomba = int.Parse(goomba.text);
+                        // newvar.firebar = int.Parse(firebar.text);
+                        // string json = JsonUtility.ToJson(newvar);
+                        // File.WriteAllText(Application.dataPath + "/variables.json", json);
+                        // Debug.Log(Application.dataPath + "/variables.json");
                         if (newGame) SaveData.NewGame();
                         StartCoroutine(ChangeScene());
                     }
@@ -157,76 +138,75 @@ namespace HelloMarioFramework
                     {
                         float x_axis = movementAction.action.ReadValue<Vector2>().x;
                         float y_axis = movementAction.action.ReadValue<Vector2>().y;
-                        Text currentText = selectedText();
                         //Down
                         if (!buttonDown && y_axis > 0.5f)
                         {
-                            buttonDown = true;
-                            audioPlayer.PlayOneShot(moveSFX);
-                            index--;
-                            if (index < 0) index = 5;
-                            moveSelectors();
+                            // buttonDown = true;
+                            // audioPlayer.PlayOneShot(moveSFX);
+                            // index--;
+                            // if (index < 0) index = 5;
+                            // moveSelectors();
                         }
                         //Up
                         else if (!buttonDown && y_axis < -0.5f)
                         {
-                            buttonDown = true;
-                            audioPlayer.PlayOneShot(moveSFX);
-                            index++;
-                            if (index > 5) index = 0;
-                            moveSelectors();
+                            // buttonDown = true;
+                            // audioPlayer.PlayOneShot(moveSFX);
+                            // index++;
+                            // if (index > 5) index = 0;
+                            // moveSelectors();
                         }
                         //Left
                         else if (!buttonDown && x_axis < -0.5f){
                             buttonDown = true;
-                            if (index == 0) {
-                                int level = getLevelID();
-                                level--;
-                                if(level < 0) level = 0;
-                                changeLevelText(level);
-                            }
-                            else if (index != 5 && index != 0){
-                                int val = int.Parse(currentText.text);
-                                val--;
-                                if(val < 1) val = 1;
-                                currentText.text = val.ToString();
-                                if (!diff.text.Equals("Custom")){
-                                    diff.text = "Custom";
-                                    diff.color = Color.blue;
-                                }
-                            }
-                            else if (index == 5){
-                                int val = getDifficultyID();
-                                val--;
-                                if(val < 0) val = 0;
-                                changeDifficulty(val);
-                            }
+                            // if (index == 0) {
+                            //     int level = getLevelID();
+                            //     level--;
+                            //     if(level < 0) level = 0;
+                            //     changeLevelText(level);
+                            // }
+                            // else if (index != 5 && index != 0){
+                            //     int val = int.Parse(currentText.text);
+                            //     val--;
+                            //     if(val < 1) val = 1;
+                            //     currentText.text = val.ToString();
+                            //     if (!diff.text.Equals("Custom")){
+                            //         diff.text = "Custom";
+                            //         diff.color = Color.blue;
+                            //     }
+                            // }
+                            // else if (index == 5){
+                            //     int val = getDifficultyID();
+                            //     val--;
+                            //     if(val < 0) val = 0;
+                            //     changeDifficulty(val);
+                            // }
                         }
                         //Right
                         else if (!buttonDown && x_axis > 0.5f){
                             buttonDown = true;
-                            if(index == 0) {
-                                int level = getLevelID();
-                                level++;
-                                if(level > 1) level = 1;
-                                changeLevelText(level); 
-                            }
-                            else if (index != 5 && index != 0){
-                                int val = int.Parse(currentText.text);
-                                val++;
-                                if(val > 10) val = 10;
-                                currentText.text = val.ToString();
-                                if (!diff.text.Equals("Custom")){
-                                    diff.text = "Custom";
-                                    diff.color = Color.blue;
-                                }
-                            }
-                            else if (index == 5){
-                                int val = getDifficultyID();
-                                val++;
-                                if(val > 4) val = 4;
-                                changeDifficulty(val);
-                            }
+                            // if(index == 0) {
+                            //     int level = getLevelID();
+                            //     level++;
+                            //     if(level > 1) level = 1;
+                            //     changeLevelText(level); 
+                            // }
+                            // else if (index != 5 && index != 0){
+                            //     int val = int.Parse(currentText.text);
+                            //     val++;
+                            //     if(val > 10) val = 10;
+                            //     currentText.text = val.ToString();
+                            //     if (!diff.text.Equals("Custom")){
+                            //         diff.text = "Custom";
+                            //         diff.color = Color.blue;
+                            //     }
+                            // }
+                            // else if (index == 5){
+                            //     int val = getDifficultyID();
+                            //     val++;
+                            //     if(val > 4) val = 4;
+                            //     changeDifficulty(val);
+                            // }
                         }
 
                         //Reset
@@ -244,205 +224,6 @@ namespace HelloMarioFramework
                             fileSelectTransform.anchoredPosition = new Vector2(fileSelectTransform.anchoredPosition.x, 0f);
                     }
                 }
-            }
-        }
-
-        private void moveSelectors() {
-            float selector_x = -37.5f;
-            float right_x = 10f;
-            float left_x = -85f;
-
-            float small_left_x = -89f;
-            float small_selector_x = -37.5f;
-            float small_right_x = 13.5f;
-            float small_selector_width = 45f;
-            float large_selector_width = 125f;
-
-
-            if (index == 0){
-                selector.GetComponent<RectTransform>().sizeDelta = new Vector2(200f, 42f);
-                selector.GetComponent<RectTransform>().anchoredPosition = 81f * Vector2.up + 0f * Vector2.right;
-                rightArrow.GetComponent<RectTransform>().anchoredPosition = 81f * Vector2.up + 120f * Vector2.right;
-                leftArrow.GetComponent<RectTransform>().anchoredPosition = 81f * Vector2.up + -120f * Vector2.right;
-            }
-            if (index == 1){
-                selector.GetComponent<RectTransform>().sizeDelta = new Vector2(45f, 42f);
-                selector.GetComponent<RectTransform>().anchoredPosition = 30f * Vector2.up + small_selector_x * Vector2.right;
-                rightArrow.GetComponent<RectTransform>().anchoredPosition = 30f * Vector2.up + right_x * Vector2.right;
-                leftArrow.GetComponent<RectTransform>().anchoredPosition = 30f * Vector2.up + left_x * Vector2.right;
-            }
-            if (index == 2){
-                selector.GetComponent<RectTransform>().anchoredPosition = -15f * Vector2.up + small_selector_x * Vector2.right;
-                rightArrow.GetComponent<RectTransform>().anchoredPosition = -15f * Vector2.up + right_x * Vector2.right;
-                leftArrow.GetComponent<RectTransform>().anchoredPosition = -15f * Vector2.up + left_x * Vector2.right;
-            }
-            if (index == 3){
-                selector.GetComponent<RectTransform>().anchoredPosition = -60f * Vector2.up + small_selector_x * Vector2.right;
-                rightArrow.GetComponent<RectTransform>().anchoredPosition = -60f * Vector2.up + right_x * Vector2.right;
-                leftArrow.GetComponent<RectTransform>().anchoredPosition = -60f * Vector2.up + left_x * Vector2.right;
-            }
-            if (index == 4){
-                selector.GetComponent<RectTransform>().sizeDelta = new Vector2(45f, 42f);
-                selector.GetComponent<RectTransform>().anchoredPosition = -100f * Vector2.up + small_selector_x * Vector2.right;
-                rightArrow.GetComponent<RectTransform>().anchoredPosition = -100f * Vector2.up + right_x * Vector2.right;
-                leftArrow.GetComponent<RectTransform>().anchoredPosition = -100f * Vector2.up + left_x * Vector2.right;
-            }
-            if (index == 5){
-                selector.GetComponent<RectTransform>().sizeDelta = new Vector2(125f, 42f);
-                selector.GetComponent<RectTransform>().anchoredPosition = -150f * Vector2.up + 1.6f * Vector2.right;
-                rightArrow.GetComponent<RectTransform>().anchoredPosition = -150f * Vector2.up + 84.1f * Vector2.right;
-                leftArrow.GetComponent<RectTransform>().anchoredPosition = -150f * Vector2.up + -80.9f * Vector2.right;
-            }
-        }
-
-        private Text selectedText() {
-            if (index == 0){
-                return gamemode;
-            }
-            if (index == 1){
-                return marioSpeed;
-            }
-            else if (index == 2){
-                return marioJump;
-            }
-            else if (index == 3){
-                return firebar;
-            }
-            else if (index == 4) {
-                return goomba;
-            }
-            else {
-                return diff;
-            }
-        } 
-
-
-        private int getDifficultyID() {
-            if (diff.text.Equals("Easy")){
-                return 1;
-            }
-            if (diff.text.Equals("Medium")){
-                return 2;
-            }
-            if (diff.text.Equals("Hard")){
-                return 3;
-            }
-            if (diff.text.Equals("Extreme")){
-                return 4;
-            }
-            else {
-                return 0;
-            }
-        }
-
-        private int getLevelID() {
-            if (gamemode.text.Equals("Survival")){
-                return 1;
-            }
-            else {
-                return 0;
-            }
-        }
-
-
-        private void changeDifficulty(int id) {
-            if (getLevelID() == 0) {
-                if (id == 1){
-                    diff.text = "Easy";
-                    diff.color = Color.green;
-                    marioSpeed.text = "1";
-                    marioJump.text = "1";
-                    goomba.text = "1";
-                    firebar.text = "1";
-                }
-                else if (id == 2){
-                    diff.text = "Medium";
-                    diff.color = Color.yellow;
-                    marioSpeed.text = "3";
-                    marioJump.text = "3";
-                    goomba.text = "3";
-                    firebar.text = "4";
-                }
-                else if (id == 3){
-                    diff.text = "Hard";
-                    diff.color = Color.red;
-                    marioSpeed.text = "5";
-                    marioJump.text = "5";
-                    goomba.text = "5";
-                    firebar.text = "6";
-                }
-                else if (id == 4){
-                    diff.text = "Extreme";
-                    diff.color = Color.magenta;
-                    marioSpeed.text = "7";
-                    marioJump.text = "7";
-                    goomba.text = "7";
-                    firebar.text = "7";
-                }
-                else {
-                    diff.text = "Custom";
-                    diff.color = Color.blue;
-                    marioSpeed.text = "1";
-                    marioJump.text = "9";
-                    goomba.text = "7";
-                    firebar.text = "8";
-                }
-            }
-            else{
-                if (id == 1){
-                    diff.text = "Easy";
-                    diff.color = Color.green;
-                    marioSpeed.text = "1";
-                    marioJump.text = "1";
-                    goomba.text = "1";
-                    firebar.text = "1";
-                }
-                else if (id == 2){
-                    diff.text = "Medium";
-                    diff.color = Color.yellow;
-                    marioSpeed.text = "3";
-                    marioJump.text = "3";
-                    goomba.text = "3";
-                    firebar.text = "4";
-                }
-                else if (id == 3){
-                    diff.text = "Hard";
-                    diff.color = Color.red;
-                    marioSpeed.text = "6";
-                    marioJump.text = "5";
-                    goomba.text = "5";
-                    firebar.text = "4";
-                }
-                else if (id == 4){
-                    diff.text = "Extreme";
-                    diff.color = Color.magenta;
-                    marioSpeed.text = "8";
-                    marioJump.text = "8";
-                    goomba.text = "8";
-                    firebar.text = "9";
-                }
-                else {
-                    diff.text = "Custom";
-                    diff.color = Color.blue;
-                    marioSpeed.text = "1";
-                    marioJump.text = "9";
-                    goomba.text = "7";
-                    firebar.text = "8";
-                }
-            }
-        }
-
-
-        private void changeLevelText(int id) {
-            if (id == 1){
-                gamemode.text = "Survival";
-                dataText.text = "Mario Speed:\nMario Jump:\nDensity:\nGoomba Speed:";
-                chosenScene = survival;
-            }
-            else {
-                gamemode.text = "Level 1";
-                dataText.text = "Mario Speed:\nMario Jump:\nFirebar:\nGoomba Speed:";
-                chosenScene = level1;
             }
         }
 
@@ -465,8 +246,6 @@ namespace HelloMarioFramework
             //titleScreenUI.SetActive(false);
             fileSelectUI.SetActive(true);
             UpdateFileSelectText();
-            moveSelectors();
-            changeDifficulty(getDifficultyID());
             selected = false;
             musicPlayer.clip = fileSelectMusic;
             musicPlayer.Play();
