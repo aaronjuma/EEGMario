@@ -60,6 +60,15 @@ namespace HelloMarioFramework
         private RectTransform titleScreenTransform;
         private RectTransform fileSelectTransform;
 
+        [SerializeField]
+        private Image buttonPlay;
+        [SerializeField]
+        private Image buttonSettings;
+        [SerializeField]
+        private Image buttonQuit;
+        [SerializeField]
+        private GameObject settingsPanel;
+
 
         //Hub world scene
         [SerializeField]
@@ -118,95 +127,66 @@ namespace HelloMarioFramework
                     //Press A to select this file
                     if (jumpAction.action.WasPressedThisFrame())
                     {
-                        musicPlayer.Stop();
-                        audioPlayer.PlayOneShot(selectSFX);
-                        audioPlayer.PlayOneShot(selectVoiceSFX);
+                        if (index == 0){ 
+                            musicPlayer.Stop();
+                            audioPlayer.PlayOneShot(selectSFX);
+                            audioPlayer.PlayOneShot(selectVoiceSFX);
 
-                        // GameVariables newvar = new GameVariables();
-                        // newvar.marioJump = int.Parse(marioJump.text);
-                        // newvar.marioSpeed = int.Parse(marioSpeed.text);
-                        // newvar.goomba = int.Parse(goomba.text);
-                        // newvar.firebar = int.Parse(firebar.text);
-                        // string json = JsonUtility.ToJson(newvar);
-                        // File.WriteAllText(Application.dataPath + "/variables.json", json);
-                        // Debug.Log(Application.dataPath + "/variables.json");
-                        if (newGame) SaveData.NewGame();
-                        StartCoroutine(ChangeScene());
+                            // GameVariables newvar = new GameVariables();
+                            // newvar.marioJump = int.Parse(marioJump.text);
+                            // newvar.marioSpeed = int.Parse(marioSpeed.text);
+                            // newvar.goomba = int.Parse(goomba.text);
+                            // newvar.firebar = int.Parse(firebar.text);
+                            // string json = JsonUtility.ToJson(newvar);
+                            // File.WriteAllText(Application.dataPath + "/variables.json", json);
+                            // Debug.Log(Application.dataPath + "/variables.json");
+                            if (newGame) SaveData.NewGame();
+                            StartCoroutine(ChangeScene());
+                        }
+                        if (index == 1) {
+                            settingsPanel.SetActive(true);
+                        }
                     }
                     //Movement keys
                     else
                     {
-                        float x_axis = movementAction.action.ReadValue<Vector2>().x;
-                        float y_axis = movementAction.action.ReadValue<Vector2>().y;
+                        float x_axis = 0;
+                        float y_axis = 0;
+                        if (settingsPanel.activeSelf == false){
+                            x_axis = movementAction.action.ReadValue<Vector2>().x;
+                            y_axis = movementAction.action.ReadValue<Vector2>().y;
+                        }
                         //Down
-                        if (!buttonDown && y_axis > 0.5f)
-                        {
-                            // buttonDown = true;
-                            // audioPlayer.PlayOneShot(moveSFX);
-                            // index--;
-                            // if (index < 0) index = 5;
-                            // moveSelectors();
-                        }
-                        //Up
-                        else if (!buttonDown && y_axis < -0.5f)
-                        {
-                            // buttonDown = true;
-                            // audioPlayer.PlayOneShot(moveSFX);
-                            // index++;
-                            // if (index > 5) index = 0;
-                            // moveSelectors();
-                        }
+                        // if (!buttonDown && y_axis > 0.5f)
+                        // {
+                        //     // buttonDown = true;
+                        //     // audioPlayer.PlayOneShot(moveSFX);
+                        //     // index--;
+                        //     // if (index < 0) index = 5;
+                        //     // moveSelectors();
+                        // }
+                        // //Up
+                        // else if (!buttonDown && y_axis < -0.5f)
+                        // {
+                        //     // buttonDown = true;
+                        //     // audioPlayer.PlayOneShot(moveSFX);
+                        //     // index++;
+                        //     // if (index > 5) index = 0;
+                        //     // moveSelectors();
+                        // }
                         //Left
-                        else if (!buttonDown && x_axis < -0.5f){
+                        if (!buttonDown && x_axis < -0.5f){
                             buttonDown = true;
-                            // if (index == 0) {
-                            //     int level = getLevelID();
-                            //     level--;
-                            //     if(level < 0) level = 0;
-                            //     changeLevelText(level);
-                            // }
-                            // else if (index != 5 && index != 0){
-                            //     int val = int.Parse(currentText.text);
-                            //     val--;
-                            //     if(val < 1) val = 1;
-                            //     currentText.text = val.ToString();
-                            //     if (!diff.text.Equals("Custom")){
-                            //         diff.text = "Custom";
-                            //         diff.color = Color.blue;
-                            //     }
-                            // }
-                            // else if (index == 5){
-                            //     int val = getDifficultyID();
-                            //     val--;
-                            //     if(val < 0) val = 0;
-                            //     changeDifficulty(val);
-                            // }
+                            index--;
+                            if(index < 0) index = 0;
+                            HighlightButton();
                         }
                         //Right
                         else if (!buttonDown && x_axis > 0.5f){
                             buttonDown = true;
-                            // if(index == 0) {
-                            //     int level = getLevelID();
-                            //     level++;
-                            //     if(level > 1) level = 1;
-                            //     changeLevelText(level); 
-                            // }
-                            // else if (index != 5 && index != 0){
-                            //     int val = int.Parse(currentText.text);
-                            //     val++;
-                            //     if(val > 10) val = 10;
-                            //     currentText.text = val.ToString();
-                            //     if (!diff.text.Equals("Custom")){
-                            //         diff.text = "Custom";
-                            //         diff.color = Color.blue;
-                            //     }
-                            // }
-                            // else if (index == 5){
-                            //     int val = getDifficultyID();
-                            //     val++;
-                            //     if(val > 4) val = 4;
-                            //     changeDifficulty(val);
-                            // }
+                            index++;
+                            if(index > 2) index = 2;
+                            HighlightButton();
                         }
 
                         //Reset
@@ -227,6 +207,27 @@ namespace HelloMarioFramework
             }
         }
 
+        private void HighlightButton() {
+            Color highlighted = new Color(0.65f, 0.65f, 0.65f, 0.8f);
+            Color notHighlighted = new Color(0f, 0f, 0f, 0.6f);
+            if (index == 0) {
+                buttonPlay.color = highlighted;
+                buttonSettings.color = notHighlighted;
+                buttonQuit.color = notHighlighted;
+            }
+            else if (index == 1){
+                buttonPlay.color = notHighlighted;
+                buttonSettings.color = highlighted;
+                buttonQuit.color = notHighlighted;
+            }
+            else if (index == 2){
+                buttonPlay.color = notHighlighted;
+                buttonSettings.color = notHighlighted;
+                buttonQuit.color = highlighted;
+            }
+        }
+
+
         private void UpdateFileSelectText()
         {
             //Get file character
@@ -244,6 +245,7 @@ namespace HelloMarioFramework
             aButton.delay = 0.1f;
             yield return new WaitForSeconds(1.5f);
             //titleScreenUI.SetActive(false);
+            HighlightButton();
             fileSelectUI.SetActive(true);
             UpdateFileSelectText();
             selected = false;
