@@ -90,7 +90,7 @@ namespace HelloMarioFramework
             movementAction.action.Enable();
 
             //Remember scene information
-            chosenScene = level1;
+            chosenScene = survival;
             LoadingScreen.titleScene = SceneManager.GetActiveScene().path;
             LoadingScreen.hubScene = SceneManager.GetActiveScene().path;
 
