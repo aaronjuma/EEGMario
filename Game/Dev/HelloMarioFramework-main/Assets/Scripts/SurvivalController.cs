@@ -67,61 +67,16 @@ public class SurvivalController : MonoBehaviour
             GenerateCoin();
         }
 
-        showStats(false);
+        ShowStatsUI(false);
 
         baselineTimeValue = Time.time;
     }
 
     // Update is called once per frame
     void Update() {
-        if (goombaParent.childCount < goombaCount) {
-            GenerateGoomba(false);
-        }
-        if (coinParent.childCount < coinCount) {
-            GenerateCoin();
-        }
-        if (prevGoombaSpeed != goombasSpeed) {
-            for(int i = 0; i < goombaParent.childCount; i++) {
-                GameObject goomba = goombaParent.transform.GetChild(i).gameObject;
-                goomba.GetComponent<Enemy>().speedMultiplier = goombasSpeed;
-            }
-        }
-        prevGoombaSpeed = goombasSpeed;
-
-
-        if(Input.GetKeyDown(KeyCode.Alpha1)) {
-            marioSpeedDifficulty++;
-            if (marioSpeedDifficulty > 10) marioSpeedDifficulty = 1;
-            changeMarioSpeed(marioSpeedDifficulty);
-        }
-        if(Input.GetKeyDown(KeyCode.Alpha2)) {
-            marioJumpDifficulty++;
-            if (marioJumpDifficulty > 10) marioJumpDifficulty = 1;
-            changeMarioJump(marioJumpDifficulty);
-        }
-        if(Input.GetKeyDown(KeyCode.Alpha3)) {
-            densityDifficulty++;
-            if (densityDifficulty > 10) densityDifficulty = 1;
-            changeDensity(densityDifficulty);
-        }
-        if(Input.GetKeyDown(KeyCode.Alpha4)) {
-            goombaDifficulty++;
-            if (goombaDifficulty > 10) goombaDifficulty = 1;
-            changeGoomba(goombaDifficulty);
-        }
-        if(Input.GetKeyDown(KeyCode.F1)) {
-            showStats(!bg.activeSelf);
-        }
-        if(Input.GetKeyDown(KeyCode.F2)) {
-            difficulty++;
-            if (difficulty > 10) difficulty = 1;
-            changeDifficulty(difficulty);
-        }
-
-        bgSpeed.GetComponent<UnityEngine.UI.Text>().text = marioSpeedDifficulty.ToString();
-        bgJump.GetComponent<UnityEngine.UI.Text>().text = marioJumpDifficulty.ToString();
-        bgDensity.GetComponent<UnityEngine.UI.Text>().text = densityDifficulty.ToString();
-        bgGoomba.GetComponent<UnityEngine.UI.Text>().text = goombaDifficulty.ToString();
+        GenerateItems();
+        UpdateDifficultyOnPressed();
+        
 
         baselineSlider.value = ( Time.time - baselineTimeValue );
 
@@ -162,7 +117,7 @@ public class SurvivalController : MonoBehaviour
     }
 
 
-    public void showStats(bool stats) {
+    public void ShowStatsUI(bool stats) {
         bg.SetActive(stats);
         bgText.SetActive(stats);
         bgSpeed.SetActive(stats);
@@ -170,6 +125,64 @@ public class SurvivalController : MonoBehaviour
         bgGoomba.SetActive(stats);
         bgDensity.SetActive(stats);
     }
+
+    public void UpdateStatsUI() {
+        bgSpeed.GetComponent<UnityEngine.UI.Text>().text = marioSpeedDifficulty.ToString();
+        bgJump.GetComponent<UnityEngine.UI.Text>().text = marioJumpDifficulty.ToString();
+        bgDensity.GetComponent<UnityEngine.UI.Text>().text = densityDifficulty.ToString();
+        bgGoomba.GetComponent<UnityEngine.UI.Text>().text = goombaDifficulty.ToString();
+    }
+
+    public void GenerateItems() {
+        if (goombaParent.childCount < goombaCount) {
+            GenerateGoomba(false);
+        }
+        if (coinParent.childCount < coinCount) {
+            GenerateCoin();
+        }
+        if (prevGoombaSpeed != goombasSpeed) {
+            for(int i = 0; i < goombaParent.childCount; i++) {
+                GameObject goomba = goombaParent.transform.GetChild(i).gameObject;
+                goomba.GetComponent<Enemy>().speedMultiplier = goombasSpeed;
+            }
+        }
+        prevGoombaSpeed = goombasSpeed;
+    }
+
+
+    public void UpdateDifficultyOnPressed() {
+        if(Input.GetKeyDown(KeyCode.Alpha1)) {
+            marioSpeedDifficulty++;
+            if (marioSpeedDifficulty > 10) marioSpeedDifficulty = 1;
+            changeMarioSpeed(marioSpeedDifficulty);
+        }
+        if(Input.GetKeyDown(KeyCode.Alpha2)) {
+            marioJumpDifficulty++;
+            if (marioJumpDifficulty > 10) marioJumpDifficulty = 1;
+            changeMarioJump(marioJumpDifficulty);
+        }
+        if(Input.GetKeyDown(KeyCode.Alpha3)) {
+            densityDifficulty++;
+            if (densityDifficulty > 10) densityDifficulty = 1;
+            changeDensity(densityDifficulty);
+        }
+        if(Input.GetKeyDown(KeyCode.Alpha4)) {
+            goombaDifficulty++;
+            if (goombaDifficulty > 10) goombaDifficulty = 1;
+            changeGoomba(goombaDifficulty);
+        }
+        if(Input.GetKeyDown(KeyCode.F1)) {
+            ShowStatsUI(!bg.activeSelf);
+        }
+        if(Input.GetKeyDown(KeyCode.F2)) {
+            difficulty++;
+            if (difficulty > 10) difficulty = 1;
+            changeDifficulty(difficulty);
+        }
+    }
+
+
+
 
     public void changeDensity(int desiredDensityDifficulty) {
 
