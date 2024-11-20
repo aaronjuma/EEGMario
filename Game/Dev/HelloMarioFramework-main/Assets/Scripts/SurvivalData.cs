@@ -19,16 +19,10 @@ public class SurvivalData
     public static SurvivalData save;
     private static string fileName = Path.Combine(Application.persistentDataPath, "survival.json");
 
-    //Unsaved global variables
-    public static bool checkpoint = false;
-    public static Vector3 checkpointPos;
-    public static Quaternion checkpointRot;
-    public static bool hubPositionSet = false;
-
     //Saved variables
     public int coins = 0;
     public int starCount = 0;
-    public List<string> collection = new List<string>();
+    public List<float> baselineData = new List<float>();
 
     //First 3 are position, last is y euler angle
     public float[] hubPosition = new float[] { 0f, 0f, 0f, 0f };
@@ -88,7 +82,6 @@ public class SurvivalData
         {
             if (!Load()) NewGame();
             Debug.Log("Survival: Using test save file!");
-            hubPositionSet = false;
         }
     }
 
@@ -130,7 +123,6 @@ public class SurvivalData
         difficulty = value;
     }
 
-
     public int GetMarioSpeed() {
         return marioSpeed;
     }
@@ -149,5 +141,9 @@ public class SurvivalData
 
     public int GetDifficulty() {
         return difficulty;
+    }
+
+    public void AppendBaselineData(float val) {
+        save.baselineData.Add(val);
     }
 }

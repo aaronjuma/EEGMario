@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using HelloMarioFramework;
+using Interaxon.Libmuse;
 
 public class SurvivalController : MonoBehaviour
 {
@@ -32,12 +33,18 @@ public class SurvivalController : MonoBehaviour
     public Player mario;
     private float goombasSpeed = 1f;
     private float prevGoombaSpeed = 1f;
+    private float mean;
+    private float std;
+
+    private int baselineDuration = 30; //180 Seconds
 
     [SerializeField] private Slider baselineSlider;
     private float baselineTimeValue;
 
     void Awake() {
         SurvivalData.NullCheck();
+        baselineSlider.maxValue = baselineDuration;
+        baselineSlider.minValue = 0;
     }
 
 
@@ -56,17 +63,6 @@ public class SurvivalController : MonoBehaviour
         changeGoomba(goombaDifficulty);
         changeDifficulty(difficulty);
 
-        // Spawn Goombas
-        for (int i = 0; i < goombaCount; ++i){
-            GenerateGoomba(true);
-        }
-        // Debug.Log(goombaParent.childCount);
-
-        // Spawn coins
-        for (int i = 0; i < coinCount; ++i) {
-            GenerateCoin();
-        }
-
         ShowStatsUI(false);
 
         baselineTimeValue = Time.time;
@@ -74,12 +70,42 @@ public class SurvivalController : MonoBehaviour
 
     // Update is called once per frame
     void Update() {
-        GenerateItems();
         UpdateDifficultyOnPressed();
+        UpdateStatsUI();
+        
+        // If the game is in the Baseline collection Phase
+        if (SurvivalData.save.GetGamePhase() == SurvivalData.GamePhase.BaselineCollection) {
+
+            // Updating slider value
+            baselineSlider.value = ( Time.time - baselineTimeValue );
+
+            //Checks if baseline colleciton phase is over
+            if ((Time.time - baselineTimeValue) >= baselineDuration) {
+
+                SurvivalData.save.ChangeGamePhase(SurvivalData.GamePhase.BiofeedbackLoop);
+                baselineSlider.gameObject.SetActive(false);
+                InitalGenerateItems();
+                Debug.Log("Array Length: " + SurvivalData.save.baselineData.Count);
+            }
+        }
+
+        // If the game is in the biofeedback loop phase
+        else if (SurvivalData.save.GetGamePhase() == SurvivalData.GamePhase.BiofeedbackLoop) {
+            GenerateItems();
+        }
         
 
-        baselineSlider.value = ( Time.time - baselineTimeValue );
+    }
 
+    int counter = 0;
+    void FixedUpdate() {
+
+        if (SurvivalData.save.GetGamePhase() == SurvivalData.GamePhase.BaselineCollection) {
+            counter++;
+            if (counter % 15 == 0){ // 5 Hz
+                SurvivalData.save.AppendBaselineData(GetEngagementValue());
+            }
+        }
     }
 
     private void GenerateGoomba(bool start) {
@@ -131,6 +157,17 @@ public class SurvivalController : MonoBehaviour
         bgJump.GetComponent<UnityEngine.UI.Text>().text = marioJumpDifficulty.ToString();
         bgDensity.GetComponent<UnityEngine.UI.Text>().text = densityDifficulty.ToString();
         bgGoomba.GetComponent<UnityEngine.UI.Text>().text = goombaDifficulty.ToString();
+    }
+
+    public void InitalGenerateItems() {
+        for (int i = 0; i < goombaCount; ++i){
+            GenerateGoomba(false);
+        }
+
+        // Spawn coins
+        for (int i = 0; i < coinCount; ++i) {
+            GenerateCoin();
+        }
     }
 
     public void GenerateItems() {
@@ -400,16 +437,6 @@ public class SurvivalController : MonoBehaviour
         changeDensity(densityDifficulty);
         changeGoomba(goombaDifficulty);
 
-
-        // GameVariables newvar = new GameVariables();
-        // newvar.marioJump = marioJumpDifficulty;
-        // newvar.marioSpeed = marioSpeedDifficulty;
-        // newvar.goomba = goombaDifficulty;
-        // newvar.firebar = densityDifficulty;
-        // newvar.difficulty = difficulty;
-        // string json = JsonUtility.ToJson(newvar);
-        // File.WriteAllText(Application.dataPath + "/variables.json", json);
-
         SurvivalData.save.UpdateMarioSpeed(marioSpeedDifficulty);
         SurvivalData.save.UpdateMarioJump(marioJumpDifficulty);
         SurvivalData.save.UpdateDensity(densityDifficulty);
@@ -417,4 +444,31 @@ public class SurvivalController : MonoBehaviour
         SurvivalData.save.UpdateDifficulty(difficulty);
     }
 
+
+    private float GetEngagementValue() {
+
+        if (InteraxonInterfacer.Instance.currentConnectionState != ConnectionState.CONNECTED || !InteraxonInterfacer.Instance.Artifacts.headbandOn)
+        {
+            return 0f;
+        }
+        
+        float alpha_af7     = (float)InteraxonInterfacer.Instance.AlphaAbsolute.AF7;
+        float alpha_af8     = (float)InteraxonInterfacer.Instance.AlphaAbsolute.AF8;
+        float beta_af7      = (float)InteraxonInterfacer.Instance.BetaAbsolute.AF7;
+        float beta_af8      = (float)InteraxonInterfacer.Instance.BetaAbsolute.AF8;
+        float theta_af7     = (float)InteraxonInterfacer.Instance.ThetaAbsolute.AF7;
+        float theta_af8     = (float)InteraxonInterfacer.Instance.ThetaAbsolute.AF8;
+
+        float alpha_ = ( Mathf.Exp(alpha_af7) + Mathf.Exp(alpha_af8) ) / 2.0f;
+        float beta_ = ( Mathf.Exp(beta_af7) + Mathf.Exp(beta_af8) ) / 2.0f;
+        float theta_ = ( Mathf.Exp(theta_af7) + Mathf.Exp(theta_af8) ) / 2.0f;
+        float engagement = beta_ / (alpha_ + theta_);
+        engagement = Mathf.Round(engagement * 100f) * 0.01f;
+        return engagement;
+    }
+
+    public void PerformCalculations() {
+        mean = MathHelper.Average(SurvivalData.save.baselineData);
+        std = MathHelper.StandardDeviation(SurvivalData.save.baselineData);
+    }
 }
