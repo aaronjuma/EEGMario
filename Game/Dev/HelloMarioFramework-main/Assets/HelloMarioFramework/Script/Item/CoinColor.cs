@@ -46,6 +46,7 @@ namespace HelloMarioFramework
                 //     o.GetComponentInChildren<Text>().text = starSpawner.Notify().ToString();
                 // }
                 SaveData.save.AddCoins(2);
+                p.Heal();
                 Destroy(gameObject);
             }
         }

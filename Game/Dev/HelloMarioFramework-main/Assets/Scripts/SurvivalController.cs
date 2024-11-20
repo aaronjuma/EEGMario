@@ -2,6 +2,7 @@ using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using HelloMarioFramework;
 
 public class SurvivalController : MonoBehaviour
@@ -15,33 +16,39 @@ public class SurvivalController : MonoBehaviour
     [SerializeField] private int goombaCount = 15;
     [SerializeField] private int coinCount = 5;
 
-    public GameObject bg;
-    public GameObject bgText;
-    public GameObject bgSpeed;
-    public GameObject bgJump;
-    public GameObject bgDensity;
-    public GameObject bgGoomba;
+    [SerializeField] private GameObject bg;
+    [SerializeField] private GameObject bgText;
+    [SerializeField] private GameObject bgSpeed;
+    [SerializeField] private GameObject bgJump;
+    [SerializeField] private GameObject bgDensity;
+    [SerializeField] private GameObject bgGoomba;
 
-    public int marioSpeedDifficulty = 1; // 0-easy, 1-med, 2-hard
-    public int marioJumpDifficulty = 1;
-    public int densityDifficulty = 1;
-    public int goombaDifficulty = 1;
-    public int difficulty = 1;
+    public int marioSpeedDifficulty;
+    public int marioJumpDifficulty;
+    public int densityDifficulty;
+    public int goombaDifficulty;
+    public int difficulty;
 
     public Player mario;
     private float goombasSpeed = 1f;
     private float prevGoombaSpeed = 1f;
 
+    [SerializeField] private Slider baselineSlider;
+    private float baselineTimeValue;
+
+    void Awake() {
+        SurvivalData.NullCheck();
+    }
+
+
     // Start is called before the first frame update
     void Start() {
 
-        string json = File.ReadAllText(Application.dataPath + "/variables.json");
-        GameVariables gameDifficulty = JsonUtility.FromJson<GameVariables>(json);
-        marioSpeedDifficulty = gameDifficulty.marioSpeed;
-        marioJumpDifficulty = gameDifficulty.marioJump;
-        densityDifficulty = gameDifficulty.firebar;
-        goombaDifficulty = gameDifficulty.goomba;
-        difficulty = gameDifficulty.difficulty;
+        marioSpeedDifficulty = SurvivalData.save.GetMarioSpeed();
+        marioJumpDifficulty = SurvivalData.save.GetMarioJump();
+        densityDifficulty = SurvivalData.save.GetDensity();
+        goombaDifficulty = SurvivalData.save.GetGoombaSpeed();
+        difficulty = SurvivalData.save.GetDifficulty();
 
         changeMarioSpeed(marioSpeedDifficulty);
         changeMarioJump(marioJumpDifficulty);
@@ -62,7 +69,7 @@ public class SurvivalController : MonoBehaviour
 
         showStats(false);
 
-
+        baselineTimeValue = Time.time;
     }
 
     // Update is called once per frame
@@ -115,6 +122,9 @@ public class SurvivalController : MonoBehaviour
         bgJump.GetComponent<UnityEngine.UI.Text>().text = marioJumpDifficulty.ToString();
         bgDensity.GetComponent<UnityEngine.UI.Text>().text = densityDifficulty.ToString();
         bgGoomba.GetComponent<UnityEngine.UI.Text>().text = goombaDifficulty.ToString();
+
+        baselineSlider.value = ( Time.time - baselineTimeValue );
+
     }
 
     private void GenerateGoomba(bool start) {
@@ -378,13 +388,20 @@ public class SurvivalController : MonoBehaviour
         changeGoomba(goombaDifficulty);
 
 
-        GameVariables newvar = new GameVariables();
-        newvar.marioJump = marioJumpDifficulty;
-        newvar.marioSpeed = marioSpeedDifficulty;
-        newvar.goomba = goombaDifficulty;
-        newvar.firebar = densityDifficulty;
-        newvar.difficulty = difficulty;
-        string json = JsonUtility.ToJson(newvar);
-        File.WriteAllText(Application.dataPath + "/variables.json", json);
+        // GameVariables newvar = new GameVariables();
+        // newvar.marioJump = marioJumpDifficulty;
+        // newvar.marioSpeed = marioSpeedDifficulty;
+        // newvar.goomba = goombaDifficulty;
+        // newvar.firebar = densityDifficulty;
+        // newvar.difficulty = difficulty;
+        // string json = JsonUtility.ToJson(newvar);
+        // File.WriteAllText(Application.dataPath + "/variables.json", json);
+
+        SurvivalData.save.UpdateMarioSpeed(marioSpeedDifficulty);
+        SurvivalData.save.UpdateMarioJump(marioJumpDifficulty);
+        SurvivalData.save.UpdateDensity(densityDifficulty);
+        SurvivalData.save.UpdateGoombaSpeed(goombaDifficulty);
+        SurvivalData.save.UpdateDifficulty(difficulty);
     }
+
 }
