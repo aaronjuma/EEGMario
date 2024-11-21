@@ -12,7 +12,7 @@ public class MathHelper
         for(int i = 0; i < n; ++i) {
             sum += arr[i];
         }
-        return sum;
+        return sum/n;
     }
 
     public static float StandardDeviation(List<float> arr) {

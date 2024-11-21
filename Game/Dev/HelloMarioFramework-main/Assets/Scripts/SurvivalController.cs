@@ -23,6 +23,7 @@ public class SurvivalController : MonoBehaviour
     [SerializeField] private GameObject bgJump;
     [SerializeField] private GameObject bgDensity;
     [SerializeField] private GameObject bgGoomba;
+    [SerializeField] public Text engagement_num;
 
     public int marioSpeedDifficulty;
     public int marioJumpDifficulty;
@@ -36,10 +37,12 @@ public class SurvivalController : MonoBehaviour
     private float mean;
     private float std;
 
-    private int baselineDuration = 30; //180 Seconds
+    private int baselineDuration = 180; //180 Seconds
 
     [SerializeField] private Slider baselineSlider;
     private float baselineTimeValue;
+    float currentEngagement = 0;
+    float prevEngagement;
 
     void Awake() {
         SurvivalData.NullCheck();
@@ -86,6 +89,9 @@ public class SurvivalController : MonoBehaviour
                 baselineSlider.gameObject.SetActive(false);
                 InitalGenerateItems();
                 Debug.Log("Array Length: " + SurvivalData.save.baselineData.Count);
+                PerformCalculations();
+                Debug.Log("Mean: " + mean);
+                Debug.Log("std: " + std);
             }
         }
 
@@ -93,20 +99,45 @@ public class SurvivalController : MonoBehaviour
         else if (SurvivalData.save.GetGamePhase() == SurvivalData.GamePhase.BiofeedbackLoop) {
             GenerateItems();
         }
-        
-
     }
 
     int counter = 0;
     void FixedUpdate() {
+        counter++;
 
-        if (SurvivalData.save.GetGamePhase() == SurvivalData.GamePhase.BaselineCollection) {
-            counter++;
-            if (counter % 15 == 0){ // 5 Hz
-                SurvivalData.save.AppendBaselineData(GetEngagementValue());
+        if (counter % 15 == 0){ // 5 Hz
+            UpdateEngagement();
+            UpdateEngagementUI();
+
+            //During Baseline Collection
+            if (SurvivalData.save.GetGamePhase() == SurvivalData.GamePhase.BaselineCollection) {
+                SurvivalData.save.AppendBaselineData(currentEngagement);
             }
+
+            else if (SurvivalData.save.GetGamePhase() == SurvivalData.GamePhase.BiofeedbackLoop) {
+                BiofeedbackLoopControl();
+            }
+
         }
     }
+
+    private void BiofeedbackLoopControl() {
+        // Check if it engagement is past 2STD
+        if (prevEngagement <= mean+2*std && currentEngagement > mean+2*std) {
+            Debug.Log("INCREASE");
+            difficulty++;
+            if (difficulty > 10) difficulty = 10;
+            changeDifficulty(difficulty);
+        }   
+        else if (prevEngagement >= mean-2*std && currentEngagement < mean-2*std){
+            Debug.Log("DECREASE");
+            difficulty--;
+            if (difficulty < 1) difficulty = 1;
+            changeDifficulty(difficulty);
+        }
+    }
+
+
 
     private void GenerateGoomba(bool start) {
         float x = Random.Range(-19, 19);
@@ -445,11 +476,11 @@ public class SurvivalController : MonoBehaviour
     }
 
 
-    private float GetEngagementValue() {
-
+    private void UpdateEngagement() {
+        prevEngagement = currentEngagement;
         if (InteraxonInterfacer.Instance.currentConnectionState != ConnectionState.CONNECTED || !InteraxonInterfacer.Instance.Artifacts.headbandOn)
         {
-            return 0f;
+            currentEngagement = 0;
         }
         
         float alpha_af7     = (float)InteraxonInterfacer.Instance.AlphaAbsolute.AF7;
@@ -464,11 +495,22 @@ public class SurvivalController : MonoBehaviour
         float theta_ = ( Mathf.Exp(theta_af7) + Mathf.Exp(theta_af8) ) / 2.0f;
         float engagement = beta_ / (alpha_ + theta_);
         engagement = Mathf.Round(engagement * 100f) * 0.01f;
-        return engagement;
+        currentEngagement = engagement;
     }
 
     public void PerformCalculations() {
         mean = MathHelper.Average(SurvivalData.save.baselineData);
         std = MathHelper.StandardDeviation(SurvivalData.save.baselineData);
+    }
+
+    public void UpdateEngagementUI() {
+        if (InteraxonInterfacer.Instance.currentConnectionState != ConnectionState.CONNECTED || !InteraxonInterfacer.Instance.Artifacts.headbandOn)
+        {
+            //Lerp back to start position
+            engagement_num.text = "N/A";
+        }
+        else{
+            engagement_num.text = currentEngagement.ToString();
+        }
     }
 }
