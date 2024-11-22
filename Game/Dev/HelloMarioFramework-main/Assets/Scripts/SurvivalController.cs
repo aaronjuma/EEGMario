@@ -68,7 +68,15 @@ public class SurvivalController : MonoBehaviour
 
         ShowStatsUI(false);
 
-        baselineTimeValue = Time.time;
+        if (SurvivalData.save.IsNewGame()){
+            baselineTimeValue = Time.time;
+            SurvivalData.AcknowledgeNewGame();
+        }
+        if (SurvivalData.save.GetGamePhase() == SurvivalData.GamePhase.BiofeedbackLoop) {
+            baselineSlider.gameObject.SetActive(false);
+            mean = SurvivalData.save.GetMean();
+            std = SurvivalData.save.GetSTD();
+        }
     }
 
     // Update is called once per frame
@@ -87,11 +95,13 @@ public class SurvivalController : MonoBehaviour
 
                 SurvivalData.save.ChangeGamePhase(SurvivalData.GamePhase.BiofeedbackLoop);
                 baselineSlider.gameObject.SetActive(false);
-                InitalGenerateItems();
+                InitialGenerateItems();
                 Debug.Log("Array Length: " + SurvivalData.save.baselineData.Count);
                 PerformCalculations();
                 Debug.Log("Mean: " + mean);
                 Debug.Log("std: " + std);
+                SurvivalData.save.SetMean(mean);
+                SurvivalData.save.SetSTD(std);
             }
         }
 
@@ -190,7 +200,7 @@ public class SurvivalController : MonoBehaviour
         bgGoomba.GetComponent<UnityEngine.UI.Text>().text = goombaDifficulty.ToString();
     }
 
-    public void InitalGenerateItems() {
+    public void InitialGenerateItems() {
         for (int i = 0; i < goombaCount; ++i){
             GenerateGoomba(false);
         }

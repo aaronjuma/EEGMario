@@ -23,6 +23,8 @@ public class SurvivalData
     public int coins = 0;
     public int starCount = 0;
     public List<float> baselineData = new List<float>();
+    public float mean;
+    public float std;
 
     //First 3 are position, last is y euler angle
     public float[] hubPosition = new float[] { 0f, 0f, 0f, 0f };
@@ -145,5 +147,21 @@ public class SurvivalData
 
     public void AppendBaselineData(float val) {
         save.baselineData.Add(val);
+    }
+
+    public void SetMean(float val) {
+        mean = val;
+    }
+
+    public void SetSTD(float val) {
+        std = val;
+    }
+
+    public float GetMean() {
+        return mean;
+    }
+
+    public float GetSTD() {
+        return std;
     }
 }
