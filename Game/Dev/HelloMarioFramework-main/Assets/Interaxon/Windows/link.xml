@@ -1,0 +1,14 @@
+<linker>
+  <assembly fullname="Assembly-CSharp">
+    <type fullname="Interaxon.Libmuse.Muse"/>
+    <type fullname="Interaxon.Libmuse.LogPacket"/>
+    <type fullname="Interaxon.Libmuse.ArtifactPacket"/>
+    <type fullname="Interaxon.Libmuse.MuseDataPacket"/>
+    <type fullname="Interaxon.Libmuse.MuseArtifactPacket"/>
+    <type fullname="Interaxon.Libmuse.MuseConnectionPacket"/>
+    <type fullname="Interaxon.Libmuse.MuseConfiguration"/>
+    <type fullname="Interaxon.Libmuse.MuseVersion"/>
+    <type fullname="Interaxon.Libmuse.MuseError"/>
+    <type fullname="Interaxon.Libmuse.JsonHelper"/>
+  </assembly>
+</linker>

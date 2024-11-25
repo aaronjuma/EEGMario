@@ -2,7 +2,9 @@ using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using HelloMarioFramework;
+using Interaxon.Libmuse;
 
 public class SurvivalController : MonoBehaviour
 {
@@ -15,33 +17,52 @@ public class SurvivalController : MonoBehaviour
     [SerializeField] private int goombaCount = 15;
     [SerializeField] private int coinCount = 5;
 
-    public GameObject bg;
-    public GameObject bgText;
-    public GameObject bgSpeed;
-    public GameObject bgJump;
-    public GameObject bgDensity;
-    public GameObject bgGoomba;
+    [SerializeField] private GameObject bg;
+    [SerializeField] private GameObject bgText;
+    [SerializeField] private GameObject bgSpeed;
+    [SerializeField] private GameObject bgJump;
+    [SerializeField] private GameObject bgDensity;
+    [SerializeField] private GameObject bgGoomba;
+    [SerializeField] public Text engagement_num;
+    [SerializeField] public GameObject biofeedbackText;
+    [SerializeField] public Text meanText;
+    [SerializeField] public Text stdText;
 
-    public int marioSpeedDifficulty = 1; // 0-easy, 1-med, 2-hard
-    public int marioJumpDifficulty = 1;
-    public int densityDifficulty = 1;
-    public int goombaDifficulty = 1;
-    public int difficulty = 1;
+    public int marioSpeedDifficulty;
+    public int marioJumpDifficulty;
+    public int densityDifficulty;
+    public int goombaDifficulty;
+    public int difficulty;
 
     public Player mario;
     private float goombasSpeed = 1f;
     private float prevGoombaSpeed = 1f;
+    private float mean;
+    private float std;
+
+    private int baselineDuration = 30; //180 Seconds
+
+    [SerializeField] public bool debugMode;
+    [SerializeField] private Slider baselineSlider;
+    private float baselineTimeValue;
+    float currentEngagement = 0;
+    float prevEngagement;
+
+    void Awake() {
+        SurvivalData.NullCheck();
+        baselineSlider.maxValue = baselineDuration;
+        baselineSlider.minValue = 0;
+    }
+
 
     // Start is called before the first frame update
     void Start() {
 
-        string json = File.ReadAllText(Application.dataPath + "/variables.json");
-        GameVariables gameDifficulty = JsonUtility.FromJson<GameVariables>(json);
-        marioSpeedDifficulty = gameDifficulty.marioSpeed;
-        marioJumpDifficulty = gameDifficulty.marioJump;
-        densityDifficulty = gameDifficulty.firebar;
-        goombaDifficulty = gameDifficulty.goomba;
-        difficulty = gameDifficulty.difficulty;
+        marioSpeedDifficulty = SurvivalData.save.GetMarioSpeed();
+        marioJumpDifficulty = SurvivalData.save.GetMarioJump();
+        densityDifficulty = SurvivalData.save.GetDensity();
+        goombaDifficulty = SurvivalData.save.GetGoombaSpeed();
+        difficulty = SurvivalData.save.GetDifficulty();
 
         changeMarioSpeed(marioSpeedDifficulty);
         changeMarioJump(marioJumpDifficulty);
@@ -49,73 +70,101 @@ public class SurvivalController : MonoBehaviour
         changeGoomba(goombaDifficulty);
         changeDifficulty(difficulty);
 
-        // Spawn Goombas
-        for (int i = 0; i < goombaCount; ++i){
-            GenerateGoomba(true);
+        if (debugMode){
+            ShowStatsUI(true);
+            biofeedbackText.SetActive(true);
         }
-        // Debug.Log(goombaParent.childCount);
-
-        // Spawn coins
-        for (int i = 0; i < coinCount; ++i) {
-            GenerateCoin();
+        else {
+            ShowStatsUI(false);
+            biofeedbackText.SetActive(false);
         }
 
-        showStats(false);
-
-
+        if (SurvivalData.save.IsNewGame()){
+            baselineTimeValue = Time.time;
+            SurvivalData.AcknowledgeNewGame();
+        }
+        if (SurvivalData.save.GetGamePhase() == SurvivalData.GamePhase.BiofeedbackLoop) {
+            baselineSlider.gameObject.SetActive(false);
+            mean = SurvivalData.save.GetMean();
+            std = SurvivalData.save.GetSTD();
+        }
     }
 
     // Update is called once per frame
     void Update() {
-        if (goombaParent.childCount < goombaCount) {
-            GenerateGoomba(false);
-        }
-        if (coinParent.childCount < coinCount) {
-            GenerateCoin();
-        }
-        if (prevGoombaSpeed != goombasSpeed) {
-            for(int i = 0; i < goombaParent.childCount; i++) {
-                GameObject goomba = goombaParent.transform.GetChild(i).gameObject;
-                goomba.GetComponent<Enemy>().speedMultiplier = goombasSpeed;
+        UpdateDifficultyOnPressed();
+        UpdateStatsUI();
+        
+        // If the game is in the Baseline collection Phase
+        if (SurvivalData.save.GetGamePhase() == SurvivalData.GamePhase.BaselineCollection) {
+
+            // Updating slider value
+            baselineSlider.value = ( Time.time - baselineTimeValue );
+
+            //Checks if baseline colleciton phase is over
+            if ((Time.time - baselineTimeValue) >= baselineDuration) {
+
+                SurvivalData.save.ChangeGamePhase(SurvivalData.GamePhase.BiofeedbackLoop);
+                baselineSlider.gameObject.SetActive(false);
+                InitialGenerateItems();
+                Debug.Log("Array Length: " + SurvivalData.save.baselineData.Count);
+                PerformCalculations();
+                Debug.Log("Mean: " + mean);
+                Debug.Log("std: " + std);
+                SurvivalData.save.SetMean(mean);
+                SurvivalData.save.SetSTD(std);
+                meanText.text = mean.ToString();
+                stdText.text = std.ToString();
+                biofeedbackText.SetActive(true);
+                for(int i = 0; i < SurvivalData.save.baselineData.Count; ++i){
+                    Debug.Log(SurvivalData.save.baselineData[i]);
+                }
             }
         }
-        prevGoombaSpeed = goombasSpeed;
 
+        // If the game is in the biofeedback loop phase
+        else if (SurvivalData.save.GetGamePhase() == SurvivalData.GamePhase.BiofeedbackLoop) {
+            GenerateItems();
+        }
+    }
 
-        if(Input.GetKeyDown(KeyCode.Alpha1)) {
-            marioSpeedDifficulty++;
-            if (marioSpeedDifficulty > 10) marioSpeedDifficulty = 1;
-            changeMarioSpeed(marioSpeedDifficulty);
+    int counter = 0;
+    void FixedUpdate() {
+        counter++;
+
+        if (counter % 15 == 0){ // 5 Hz
+            UpdateEngagement();
+            UpdateEngagementUI();
+
+            //During Baseline Collection
+            if (SurvivalData.save.GetGamePhase() == SurvivalData.GamePhase.BaselineCollection) {
+                SurvivalData.save.AppendBaselineData(currentEngagement);
+            }
+
+            else if (SurvivalData.save.GetGamePhase() == SurvivalData.GamePhase.BiofeedbackLoop) {
+                BiofeedbackLoopControl();
+            }
+
         }
-        if(Input.GetKeyDown(KeyCode.Alpha2)) {
-            marioJumpDifficulty++;
-            if (marioJumpDifficulty > 10) marioJumpDifficulty = 1;
-            changeMarioJump(marioJumpDifficulty);
-        }
-        if(Input.GetKeyDown(KeyCode.Alpha3)) {
-            densityDifficulty++;
-            if (densityDifficulty > 10) densityDifficulty = 1;
-            changeDensity(densityDifficulty);
-        }
-        if(Input.GetKeyDown(KeyCode.Alpha4)) {
-            goombaDifficulty++;
-            if (goombaDifficulty > 10) goombaDifficulty = 1;
-            changeGoomba(goombaDifficulty);
-        }
-        if(Input.GetKeyDown(KeyCode.F1)) {
-            showStats(!bg.activeSelf);
-        }
-        if(Input.GetKeyDown(KeyCode.F2)) {
+    }
+
+    private void BiofeedbackLoopControl() {
+        // Check if it engagement is past 2STD
+        if (prevEngagement <= mean+2*std && currentEngagement > mean+2*std) {
+            Debug.Log("INCREASE");
             difficulty++;
-            if (difficulty > 10) difficulty = 1;
+            if (difficulty > 10) difficulty = 10;
+            changeDifficulty(difficulty);
+        }   
+        else if (prevEngagement >= mean-2*std && currentEngagement < mean-2*std){
+            Debug.Log("DECREASE");
+            difficulty--;
+            if (difficulty < 1) difficulty = 1;
             changeDifficulty(difficulty);
         }
-
-        bgSpeed.GetComponent<UnityEngine.UI.Text>().text = marioSpeedDifficulty.ToString();
-        bgJump.GetComponent<UnityEngine.UI.Text>().text = marioJumpDifficulty.ToString();
-        bgDensity.GetComponent<UnityEngine.UI.Text>().text = densityDifficulty.ToString();
-        bgGoomba.GetComponent<UnityEngine.UI.Text>().text = goombaDifficulty.ToString();
     }
+
+
 
     private void GenerateGoomba(bool start) {
         float x = Random.Range(-19, 19);
@@ -152,7 +201,7 @@ public class SurvivalController : MonoBehaviour
     }
 
 
-    public void showStats(bool stats) {
+    public void ShowStatsUI(bool stats) {
         bg.SetActive(stats);
         bgText.SetActive(stats);
         bgSpeed.SetActive(stats);
@@ -160,6 +209,75 @@ public class SurvivalController : MonoBehaviour
         bgGoomba.SetActive(stats);
         bgDensity.SetActive(stats);
     }
+
+    public void UpdateStatsUI() {
+        bgSpeed.GetComponent<UnityEngine.UI.Text>().text = marioSpeedDifficulty.ToString();
+        bgJump.GetComponent<UnityEngine.UI.Text>().text = marioJumpDifficulty.ToString();
+        bgDensity.GetComponent<UnityEngine.UI.Text>().text = densityDifficulty.ToString();
+        bgGoomba.GetComponent<UnityEngine.UI.Text>().text = goombaDifficulty.ToString();
+    }
+
+    public void InitialGenerateItems() {
+        for (int i = 0; i < goombaCount; ++i){
+            GenerateGoomba(false);
+        }
+
+        // Spawn coins
+        for (int i = 0; i < coinCount; ++i) {
+            GenerateCoin();
+        }
+    }
+
+    public void GenerateItems() {
+        if (goombaParent.childCount < goombaCount) {
+            GenerateGoomba(false);
+        }
+        if (coinParent.childCount < coinCount) {
+            GenerateCoin();
+        }
+        if (prevGoombaSpeed != goombasSpeed) {
+            for(int i = 0; i < goombaParent.childCount; i++) {
+                GameObject goomba = goombaParent.transform.GetChild(i).gameObject;
+                goomba.GetComponent<Enemy>().speedMultiplier = goombasSpeed;
+            }
+        }
+        prevGoombaSpeed = goombasSpeed;
+    }
+
+
+    public void UpdateDifficultyOnPressed() {
+        if(Input.GetKeyDown(KeyCode.Alpha1)) {
+            marioSpeedDifficulty++;
+            if (marioSpeedDifficulty > 10) marioSpeedDifficulty = 1;
+            changeMarioSpeed(marioSpeedDifficulty);
+        }
+        if(Input.GetKeyDown(KeyCode.Alpha2)) {
+            marioJumpDifficulty++;
+            if (marioJumpDifficulty > 10) marioJumpDifficulty = 1;
+            changeMarioJump(marioJumpDifficulty);
+        }
+        if(Input.GetKeyDown(KeyCode.Alpha3)) {
+            densityDifficulty++;
+            if (densityDifficulty > 10) densityDifficulty = 1;
+            changeDensity(densityDifficulty);
+        }
+        if(Input.GetKeyDown(KeyCode.Alpha4)) {
+            goombaDifficulty++;
+            if (goombaDifficulty > 10) goombaDifficulty = 1;
+            changeGoomba(goombaDifficulty);
+        }
+        if(Input.GetKeyDown(KeyCode.F1)) {
+            ShowStatsUI(!bg.activeSelf);
+        }
+        if(Input.GetKeyDown(KeyCode.F2)) {
+            difficulty++;
+            if (difficulty > 10) difficulty = 1;
+            changeDifficulty(difficulty);
+        }
+    }
+
+
+
 
     public void changeDensity(int desiredDensityDifficulty) {
 
@@ -377,14 +495,51 @@ public class SurvivalController : MonoBehaviour
         changeDensity(densityDifficulty);
         changeGoomba(goombaDifficulty);
 
+        SurvivalData.save.UpdateMarioSpeed(marioSpeedDifficulty);
+        SurvivalData.save.UpdateMarioJump(marioJumpDifficulty);
+        SurvivalData.save.UpdateDensity(densityDifficulty);
+        SurvivalData.save.UpdateGoombaSpeed(goombaDifficulty);
+        SurvivalData.save.UpdateDifficulty(difficulty);
+    }
 
-        GameVariables newvar = new GameVariables();
-        newvar.marioJump = marioJumpDifficulty;
-        newvar.marioSpeed = marioSpeedDifficulty;
-        newvar.goomba = goombaDifficulty;
-        newvar.firebar = densityDifficulty;
-        newvar.difficulty = difficulty;
-        string json = JsonUtility.ToJson(newvar);
-        File.WriteAllText(Application.dataPath + "/variables.json", json);
+
+    private void UpdateEngagement() {
+        prevEngagement = currentEngagement;
+        if (InteraxonInterfacer.Instance.currentConnectionState != ConnectionState.CONNECTED || !InteraxonInterfacer.Instance.Artifacts.headbandOn)
+        {
+            //Lerp back to start position
+            currentEngagement = 0;
+            return;
+        }
+        
+        float alpha_af7     = (float)InteraxonInterfacer.Instance.AlphaAbsolute.AF7;
+        float alpha_af8     = (float)InteraxonInterfacer.Instance.AlphaAbsolute.AF8;
+        float beta_af7      = (float)InteraxonInterfacer.Instance.BetaAbsolute.AF7;
+        float beta_af8      = (float)InteraxonInterfacer.Instance.BetaAbsolute.AF8;
+        float theta_af7     = (float)InteraxonInterfacer.Instance.ThetaAbsolute.AF7;
+        float theta_af8     = (float)InteraxonInterfacer.Instance.ThetaAbsolute.AF8;
+
+        float alpha_ = ( Mathf.Exp(alpha_af7) + Mathf.Exp(alpha_af8) ) / 2.0f;
+        float beta_ = ( Mathf.Exp(beta_af7) + Mathf.Exp(beta_af8) ) / 2.0f;
+        float theta_ = ( Mathf.Exp(theta_af7) + Mathf.Exp(theta_af8) ) / 2.0f;
+        float engagement = beta_ / (alpha_ + theta_);
+        engagement = Mathf.Round(engagement * 100f) * 0.01f;
+        currentEngagement = engagement;
+    }
+
+    public void PerformCalculations() {
+        mean = MathHelper.Average(SurvivalData.save.baselineData);
+        std = MathHelper.StandardDeviation(SurvivalData.save.baselineData);
+    }
+
+    public void UpdateEngagementUI() {
+        if (InteraxonInterfacer.Instance.currentConnectionState != ConnectionState.CONNECTED || !InteraxonInterfacer.Instance.Artifacts.headbandOn)
+        {
+            //Lerp back to start position
+            engagement_num.text = "N/A";
+        }
+        else{
+            engagement_num.text = currentEngagement.ToString();
+        }
     }
 }
