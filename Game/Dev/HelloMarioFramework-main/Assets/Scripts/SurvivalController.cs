@@ -24,6 +24,9 @@ public class SurvivalController : MonoBehaviour
     [SerializeField] private GameObject bgDensity;
     [SerializeField] private GameObject bgGoomba;
     [SerializeField] public Text engagement_num;
+    [SerializeField] public GameObject biofeedbackText;
+    [SerializeField] public Text meanText;
+    [SerializeField] public Text stdText;
 
     public int marioSpeedDifficulty;
     public int marioJumpDifficulty;
@@ -37,8 +40,9 @@ public class SurvivalController : MonoBehaviour
     private float mean;
     private float std;
 
-    private int baselineDuration = 180; //180 Seconds
+    private int baselineDuration = 30; //180 Seconds
 
+    [SerializeField] public bool debugMode;
     [SerializeField] private Slider baselineSlider;
     private float baselineTimeValue;
     float currentEngagement = 0;
@@ -66,7 +70,14 @@ public class SurvivalController : MonoBehaviour
         changeGoomba(goombaDifficulty);
         changeDifficulty(difficulty);
 
-        ShowStatsUI(false);
+        if (debugMode){
+            ShowStatsUI(true);
+            biofeedbackText.SetActive(true);
+        }
+        else {
+            ShowStatsUI(false);
+            biofeedbackText.SetActive(false);
+        }
 
         if (SurvivalData.save.IsNewGame()){
             baselineTimeValue = Time.time;
@@ -102,6 +113,12 @@ public class SurvivalController : MonoBehaviour
                 Debug.Log("std: " + std);
                 SurvivalData.save.SetMean(mean);
                 SurvivalData.save.SetSTD(std);
+                meanText.text = mean.ToString();
+                stdText.text = std.ToString();
+                biofeedbackText.SetActive(true);
+                for(int i = 0; i < SurvivalData.save.baselineData.Count; ++i){
+                    Debug.Log(SurvivalData.save.baselineData[i]);
+                }
             }
         }
 
@@ -490,7 +507,9 @@ public class SurvivalController : MonoBehaviour
         prevEngagement = currentEngagement;
         if (InteraxonInterfacer.Instance.currentConnectionState != ConnectionState.CONNECTED || !InteraxonInterfacer.Instance.Artifacts.headbandOn)
         {
+            //Lerp back to start position
             currentEngagement = 0;
+            return;
         }
         
         float alpha_af7     = (float)InteraxonInterfacer.Instance.AlphaAbsolute.AF7;
