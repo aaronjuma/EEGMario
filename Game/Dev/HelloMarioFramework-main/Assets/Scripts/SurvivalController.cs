@@ -40,13 +40,16 @@ public class SurvivalController : MonoBehaviour
     private float mean;
     private float std;
 
-    private int baselineDuration = 30; //180 Seconds
+    public int baselineDuration = 180; //180 Seconds
 
     [SerializeField] public bool debugMode;
     [SerializeField] private Slider baselineSlider;
     private float baselineTimeValue;
     float currentEngagement = 0;
     float prevEngagement;
+
+
+
 
     void Awake() {
         SurvivalData.NullCheck();
@@ -116,9 +119,6 @@ public class SurvivalController : MonoBehaviour
                 meanText.text = mean.ToString();
                 stdText.text = std.ToString();
                 biofeedbackText.SetActive(true);
-                for(int i = 0; i < SurvivalData.save.baselineData.Count; ++i){
-                    Debug.Log(SurvivalData.save.baselineData[i]);
-                }
             }
         }
 
@@ -166,21 +166,17 @@ public class SurvivalController : MonoBehaviour
 
 
 
-    private void GenerateGoomba(bool start) {
+    private void GenerateGoomba() {
         float x = Random.Range(-19, 19);
         float z = Random.Range(-19, 19);
 
-        //Prevent goombas from spawning near the
-        if (start){
-            while (Mathf.Abs(x) < 5 || Mathf.Abs(z) < 5) {
-                x = Random.Range(-19, 19);
-                z = Random.Range(-19, 19);
-            }
-        }
-        else{
+        Vector3 marioPos = Player.singleton.transform.position;
+        //Prevent goombas from spawning near mario
+        while (Mathf.Abs(marioPos.x - x) < 5 || Mathf.Abs(marioPos.z - z) < 5) {
             x = Random.Range(-19, 19);
             z = Random.Range(-19, 19);
         }
+
         Vector3 pos = new Vector3(x, 3, z);
         Quaternion currentRotation = new Quaternion();
         currentRotation.eulerAngles = new Vector3(0, 90, 0);
@@ -219,7 +215,7 @@ public class SurvivalController : MonoBehaviour
 
     public void InitialGenerateItems() {
         for (int i = 0; i < goombaCount; ++i){
-            GenerateGoomba(false);
+            GenerateGoomba();
         }
 
         // Spawn coins
@@ -230,8 +226,13 @@ public class SurvivalController : MonoBehaviour
 
     public void GenerateItems() {
         if (goombaParent.childCount < goombaCount) {
-            GenerateGoomba(false);
+            GenerateGoomba();
         }
+        if (goombaParent.childCount > goombaCount) {
+            int randomInt = Random.Range(0, goombaParent.childCount-1);
+            Destroy(goombaParent.transform.GetChild(randomInt).gameObject);
+        }
+
         if (coinParent.childCount < coinCount) {
             GenerateCoin();
         }
@@ -242,6 +243,7 @@ public class SurvivalController : MonoBehaviour
             }
         }
         prevGoombaSpeed = goombasSpeed;
+
     }
 
 
@@ -289,28 +291,28 @@ public class SurvivalController : MonoBehaviour
                 goombaCount = 8;
                 break;
             case 3: 
-                goombaCount = 10;
+                goombaCount = 11;
                 break;
             case 4: 
-                goombaCount = 13;
+                goombaCount = 14;
                 break;
             case 5: 
-                goombaCount = 15;
-                break;
-            case 6: 
                 goombaCount = 17;
                 break;
-            case 7: 
-                goombaCount = 18;
-                break;
-            case 8: 
+            case 6: 
                 goombaCount = 20;
                 break;
+            case 7: 
+                goombaCount = 23;
+                break;
+            case 8: 
+                goombaCount = 26;
+                break;
             case 9: 
-                goombaCount = 22;
+                goombaCount = 29;
                 break;
             case 10: 
-                goombaCount = 30;
+                goombaCount = 32;
                 break;
             default: break;
         }
@@ -382,7 +384,7 @@ public class SurvivalController : MonoBehaviour
                 mario.jumpMultiplier = 0.86f;
                 break;
             case 10:
-                mario.jumpMultiplier = 0.85f;
+                mario.jumpMultiplier = 0.83f;
                 break;
             default: break;
         }

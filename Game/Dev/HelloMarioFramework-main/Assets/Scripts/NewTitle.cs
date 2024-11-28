@@ -153,6 +153,9 @@ namespace HelloMarioFramework
                                 settingsPanel.SetActive(true);
                             }
                         }
+                        if (index == 2){
+                            Application.Quit();
+                        }
                     }
                     //Movement keys
                     else
