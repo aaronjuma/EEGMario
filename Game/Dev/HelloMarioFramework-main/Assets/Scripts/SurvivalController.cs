@@ -90,6 +90,8 @@ public class SurvivalController : MonoBehaviour
             baselineSlider.gameObject.SetActive(false);
             mean = SurvivalData.save.GetMean();
             std = SurvivalData.save.GetSTD();
+            meanText.text = mean.ToString();
+            stdText.text = std.ToString();
         }
     }
 
