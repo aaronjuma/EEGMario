@@ -6,22 +6,35 @@ using UnityEngine.UI;
 using HelloMarioFramework;
 using Interaxon.Libmuse;
 
-public class SurvivalController : MonoBehaviour
+public class Level1Controller : MonoBehaviour
 {
+    public int marioSpeedDifficulty; // 0-easy, 1-med, 2-hard
+    public int marioJumpDifficulty;
+    public int firebarDifficulty;
+    public int goombaDifficulty;
+    public int difficulty;
 
-    [SerializeField] private GameObject goombaPrefab;
-    [SerializeField] private GameObject coinPrefab;
-    [SerializeField] private Transform goombaParent;
-    [SerializeField] private Transform coinParent;
-    [SerializeField] private float goombaChaseDistance = 2f;
-    [SerializeField] private int goombaCount = 15;
-    [SerializeField] private int coinCount = 5;
+    public Player mario;
+    public Rotator firstFirebar;
+    public Rotator secondFirebar;
+    public Rotator thirdFirebar1;
+    public Rotator thirdFirebar2;
+    public Rotator fourthFirebar1;
+    public Rotator fourthFirebar2;
+    public Rotator fourthFirebar3;
+    public Rotator fourthFirebar4;
 
-    [SerializeField] private GameObject gameStats;
-    [SerializeField] private GameObject bgSpeed;
-    [SerializeField] private GameObject bgJump;
-    [SerializeField] private GameObject bgDensity;
-    [SerializeField] private GameObject bgGoomba;
+    public Enemy firstGoomba1;
+    public Enemy firstGoomba2;
+    public Enemy secondGoomba1;
+    public Enemy secondGoomba2;
+    public Enemy fourthGoomba;
+
+    [SerializeField] public GameObject gameStats;
+    [SerializeField] public GameObject bgSpeed;
+    [SerializeField] public GameObject bgJump;
+    [SerializeField] public GameObject bgFirebar;
+    [SerializeField] public GameObject bgGoomba;
 
     [SerializeField] private GameObject baselinePanel;
     [SerializeField] private Slider baselineSlider;
@@ -30,24 +43,17 @@ public class SurvivalController : MonoBehaviour
     [SerializeField] public Text meanText;
     [SerializeField] public Text stdText;
 
-    public int marioSpeedDifficulty;
-    public int marioJumpDifficulty;
-    public int densityDifficulty;
-    public int goombaDifficulty;
-    public int difficulty;
-
-    public Player mario;
-    private float goombasSpeed = 1f;
-    private float prevGoombaSpeed = 1f;
     private float mean;
     private float std;
-
-    public int baselineDuration = 180; //180 Seconds
-
-    [SerializeField] public bool debugMode;
     private float baselineTimeValue;
     float currentEngagement = 0;
     float prevEngagement;
+
+    [SerializeField] public bool debugMode;
+
+    public int baselineDuration = 180; //180 Seconds
+
+
 
     void Awake() {
         GameplayData.NullCheck();
@@ -58,16 +64,15 @@ public class SurvivalController : MonoBehaviour
 
     // Start is called before the first frame update
     void Start() {
-
         marioSpeedDifficulty = GameplayData.save.GetMarioSpeed();
         marioJumpDifficulty = GameplayData.save.GetMarioJump();
-        densityDifficulty = GameplayData.save.GetDensity();
+        firebarDifficulty = GameplayData.save.GetDensity();
         goombaDifficulty = GameplayData.save.GetGoombaSpeed();
         difficulty = GameplayData.save.GetDifficulty();
 
         changeMarioSpeed(marioSpeedDifficulty);
         changeMarioJump(marioJumpDifficulty);
-        changeDensity(densityDifficulty);
+        changeFirebar(firebarDifficulty);
         changeGoomba(goombaDifficulty);
         changeDifficulty(difficulty);
 
@@ -94,7 +99,7 @@ public class SurvivalController : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update() {
+    void Update(){
         UpdateDifficultyOnPressed();
         UpdateStatsUI();
         
@@ -109,7 +114,6 @@ public class SurvivalController : MonoBehaviour
 
                 GameplayData.save.ChangeGamePhase(GameplayData.GamePhase.BiofeedbackLoop);
                 baselinePanel.SetActive(false);
-                InitialGenerateItems();
                 PerformCalculations();
                 GameplayData.save.SetMean(mean);
                 GameplayData.save.SetSTD(std);
@@ -121,7 +125,7 @@ public class SurvivalController : MonoBehaviour
 
         // If the game is in the biofeedback loop phase
         else if (GameplayData.save.GetGamePhase() == GameplayData.GamePhase.BiofeedbackLoop) {
-            GenerateItems();
+            //Do something
         }
     }
 
@@ -161,85 +165,6 @@ public class SurvivalController : MonoBehaviour
     }
 
 
-
-    private void GenerateGoomba() {
-        float x = Random.Range(-19, 19);
-        float z = Random.Range(-19, 19);
-
-        Vector3 marioPos = Player.singleton.transform.position;
-        //Prevent goombas from spawning near mario
-        while (Mathf.Abs(marioPos.x - x) < 5 || Mathf.Abs(marioPos.z - z) < 5) {
-            x = Random.Range(-19, 19);
-            z = Random.Range(-19, 19);
-        }
-
-        Vector3 pos = new Vector3(x, 3, z);
-        Quaternion currentRotation = new Quaternion();
-        currentRotation.eulerAngles = new Vector3(0, 90, 0);
-        GameObject goomba = Instantiate(goombaPrefab, pos, currentRotation, goombaParent);
-        goomba.GetComponent<Enemy>().chaseDistance = goombaChaseDistance;
-        goomba.GetComponent<Enemy>().speedMultiplier = goombasSpeed;
-        goomba.GetComponent<Enemy>().isRoamer = true;
-        goomba.GetComponent<Enemy>().DropsCoins(true);
-    }
-
-    private void GenerateCoin() {
-        float x = Random.Range(-19, 19);
-        float z = Random.Range(-19, 19);
-        Vector3 pos = new Vector3(x, 4, z);
-        Quaternion currentRotation = new Quaternion();
-        currentRotation.eulerAngles = new Vector3(0, 90, 0);
-        Instantiate(coinPrefab, pos, currentRotation, coinParent);
-    }
-
-
-    public void ShowStatsUI(bool stats) {
-        gameStats.SetActive(stats);
-        biofeedbackText.SetActive(stats);
-        engagementText.gameObject.SetActive(stats);
-    }
-
-    public void UpdateStatsUI() {
-        bgSpeed.GetComponent<UnityEngine.UI.Text>().text = marioSpeedDifficulty.ToString();
-        bgJump.GetComponent<UnityEngine.UI.Text>().text = marioJumpDifficulty.ToString();
-        bgDensity.GetComponent<UnityEngine.UI.Text>().text = densityDifficulty.ToString();
-        bgGoomba.GetComponent<UnityEngine.UI.Text>().text = goombaDifficulty.ToString();
-    }
-
-    public void InitialGenerateItems() {
-        for (int i = 0; i < goombaCount; ++i){
-            GenerateGoomba();
-        }
-
-        // Spawn coins
-        for (int i = 0; i < coinCount; ++i) {
-            GenerateCoin();
-        }
-    }
-
-    public void GenerateItems() {
-        if (goombaParent.childCount < goombaCount) {
-            GenerateGoomba();
-        }
-        if (goombaParent.childCount > goombaCount) {
-            int randomInt = Random.Range(0, goombaParent.childCount-1);
-            Destroy(goombaParent.transform.GetChild(randomInt).gameObject);
-        }
-
-        if (coinParent.childCount < coinCount) {
-            GenerateCoin();
-        }
-        if (prevGoombaSpeed != goombasSpeed) {
-            for(int i = 0; i < goombaParent.childCount; i++) {
-                GameObject goomba = goombaParent.transform.GetChild(i).gameObject;
-                goomba.GetComponent<Enemy>().speedMultiplier = goombasSpeed;
-            }
-        }
-        prevGoombaSpeed = goombasSpeed;
-
-    }
-
-
     public void UpdateDifficultyOnPressed() {
         if(Input.GetKeyDown(KeyCode.Alpha1)) {
             marioSpeedDifficulty++;
@@ -252,9 +177,9 @@ public class SurvivalController : MonoBehaviour
             changeMarioJump(marioJumpDifficulty);
         }
         if(Input.GetKeyDown(KeyCode.Alpha3)) {
-            densityDifficulty++;
-            if (densityDifficulty > 10) densityDifficulty = 1;
-            changeDensity(densityDifficulty);
+            firebarDifficulty++;
+            if (firebarDifficulty > 10) firebarDifficulty = 1;
+            changeFirebar(firebarDifficulty);
         }
         if(Input.GetKeyDown(KeyCode.Alpha4)) {
             goombaDifficulty++;
@@ -271,42 +196,75 @@ public class SurvivalController : MonoBehaviour
         }
     }
 
+    public void UpdateStatsUI() {
+        bgSpeed.GetComponent<UnityEngine.UI.Text>().text = marioSpeedDifficulty.ToString();
+        bgJump.GetComponent<UnityEngine.UI.Text>().text = marioJumpDifficulty.ToString();
+        bgFirebar.GetComponent<UnityEngine.UI.Text>().text = firebarDifficulty.ToString();
+        bgGoomba.GetComponent<UnityEngine.UI.Text>().text = goombaDifficulty.ToString();
+    }
 
-    public void changeDensity(int desiredDensityDifficulty) {
 
-        switch(desiredDensityDifficulty){
+    public void ShowStatsUI(bool stats) {
+        gameStats.SetActive(stats);
+        biofeedbackText.SetActive(stats);
+        engagementText.gameObject.SetActive(stats);
+    }
+
+
+
+
+
+
+
+
+    /* Game Difficulty Changer */
+
+
+    public void changeFirebar(int desiredFirebarDifficulty) {
+        float firebarsSpeed = 1.0f;
+
+        switch(desiredFirebarDifficulty){
             case 1: 
-                goombaCount = 5;
+                firebarsSpeed = 0.75f;
                 break;
             case 2: 
-                goombaCount = 8;
+                firebarsSpeed = 0.85f;
                 break;
             case 3: 
-                goombaCount = 11;
+                firebarsSpeed = 1f;
                 break;
             case 4: 
-                goombaCount = 14;
+                firebarsSpeed = 1.25f;
                 break;
             case 5: 
-                goombaCount = 17;
+                firebarsSpeed = 1.5f;
                 break;
             case 6: 
-                goombaCount = 20;
+                firebarsSpeed = 1.75f;
                 break;
             case 7: 
-                goombaCount = 23;
+                firebarsSpeed = 2.0f;
                 break;
             case 8: 
-                goombaCount = 26;
+                firebarsSpeed = 2.25f;
                 break;
             case 9: 
-                goombaCount = 29;
+                firebarsSpeed = 2.5f;
                 break;
             case 10: 
-                goombaCount = 32;
+                firebarsSpeed = 2.75f;
                 break;
             default: break;
         }
+
+        firstFirebar.updateSpeed(firebarsSpeed);
+        secondFirebar.updateSpeed(firebarsSpeed);
+        thirdFirebar1.updateSpeed(firebarsSpeed);
+        thirdFirebar2.updateSpeed(firebarsSpeed);
+        fourthFirebar1.updateSpeed(firebarsSpeed);
+        fourthFirebar2.updateSpeed(firebarsSpeed);
+        fourthFirebar3.updateSpeed(firebarsSpeed);
+        fourthFirebar4.updateSpeed(firebarsSpeed);
     }
 
     public void changeMarioSpeed(int desiredMarioSpeed) {
@@ -375,13 +333,14 @@ public class SurvivalController : MonoBehaviour
                 mario.jumpMultiplier = 0.86f;
                 break;
             case 10:
-                mario.jumpMultiplier = 0.83f;
+                mario.jumpMultiplier = 0.85f;
                 break;
             default: break;
         }
     }
 
     public void changeGoomba(int desiredGoombaSpeed) {
+        float goombasSpeed = 0f;
         switch(desiredGoombaSpeed){
             case 1: 
                 goombasSpeed = 0.8f;
@@ -415,69 +374,75 @@ public class SurvivalController : MonoBehaviour
                 break;
             default: break;
         }
+
+
+        firstGoomba1.speedMultiplier = goombasSpeed;
+        firstGoomba2.speedMultiplier = goombasSpeed;
+        secondGoomba1.speedMultiplier = goombasSpeed;
+        secondGoomba2.speedMultiplier = goombasSpeed;
     }
-
-
+    
+    
     public void changeDifficulty(int desiredDifficulty) {
         switch(desiredDifficulty){
             case 1:
                 marioSpeedDifficulty = 1;
                 marioJumpDifficulty = 1;
+                firebarDifficulty = 1;
                 goombaDifficulty = 1;
-                densityDifficulty = 1;
                 break;
             case 2:
                 marioSpeedDifficulty = 2;
                 marioJumpDifficulty = 2;
-                densityDifficulty = 3;
+                firebarDifficulty = 3;
                 goombaDifficulty = 2;
                 break;
             case 3:
                 marioSpeedDifficulty = 3;
                 marioJumpDifficulty = 3;
-                densityDifficulty = 4;
+                firebarDifficulty = 4;
                 goombaDifficulty = 3;
                 break;
             case 4: 
                 marioSpeedDifficulty = 4;
                 marioJumpDifficulty = 4;
-                densityDifficulty = 5;
+                firebarDifficulty = 5;
                 goombaDifficulty = 4;
                 break;
             case 5: 
                 marioSpeedDifficulty = 5;
                 marioJumpDifficulty = 5;
-                densityDifficulty = 6;
+                firebarDifficulty = 6;
                 goombaDifficulty = 4;
                 break;
             case 6: 
                 marioSpeedDifficulty = 6;
                 marioJumpDifficulty = 5;
-                densityDifficulty = 5;
+                firebarDifficulty = 5;
                 goombaDifficulty = 4;
                 break;
             case 7: 
                 marioSpeedDifficulty = 7;
                 marioJumpDifficulty = 6;
-                densityDifficulty = 6;
+                firebarDifficulty = 6;
                 goombaDifficulty = 5;
                 break;
             case 8: 
                 marioSpeedDifficulty = 8;
                 marioJumpDifficulty = 7;
-                densityDifficulty = 7;
+                firebarDifficulty = 7;
                 goombaDifficulty = 6;
                 break;
             case 9: 
                 marioSpeedDifficulty = 8;
                 marioJumpDifficulty = 8;
-                densityDifficulty = 8;
+                firebarDifficulty = 8;
                 goombaDifficulty = 8;
                 break;
             case 10: 
                 marioSpeedDifficulty = 9;
                 marioJumpDifficulty = 9;
-                densityDifficulty = 10;
+                firebarDifficulty = 10;
                 goombaDifficulty = 10;
                 break;
             default: break;
@@ -485,15 +450,26 @@ public class SurvivalController : MonoBehaviour
 
         changeMarioSpeed(marioSpeedDifficulty);
         changeMarioJump(marioJumpDifficulty);
-        changeDensity(densityDifficulty);
+        changeFirebar(firebarDifficulty);
         changeGoomba(goombaDifficulty);
 
         GameplayData.save.UpdateMarioSpeed(marioSpeedDifficulty);
         GameplayData.save.UpdateMarioJump(marioJumpDifficulty);
-        GameplayData.save.UpdateDensity(densityDifficulty);
+        GameplayData.save.UpdateFirebar(firebarDifficulty);
         GameplayData.save.UpdateGoombaSpeed(goombaDifficulty);
         GameplayData.save.UpdateDifficulty(difficulty);
     }
+
+
+
+
+
+
+
+
+
+
+
 
 
     private void UpdateEngagement() {

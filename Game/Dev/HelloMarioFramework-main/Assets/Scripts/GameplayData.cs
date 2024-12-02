@@ -13,10 +13,10 @@ using System.IO;
 using UnityEngine;
 
 [Serializable]
-public class SurvivalData
+public class GameplayData
 {
     //Current loaded save file
-    public static SurvivalData save;
+    public static GameplayData save;
     private static string fileName = Path.Combine(Application.persistentDataPath, "survival.json");
 
     //Saved variables
@@ -35,6 +35,7 @@ public class SurvivalData
     public int marioSpeed = 1;
     public int goomba = 1;
     public int density = 1;
+    public int firebar = 1;
     public int difficulty = 1;
 
 
@@ -59,7 +60,7 @@ public class SurvivalData
     {
         if (System.IO.File.Exists(fileName))
         {
-            save = JsonUtility.FromJson<SurvivalData>(System.IO.File.ReadAllText(fileName));
+            save = JsonUtility.FromJson<GameplayData>(System.IO.File.ReadAllText(fileName));
             return true;
         }
         else
@@ -69,7 +70,7 @@ public class SurvivalData
     //Create new game
     public static void NewGame()
     {
-        save = new SurvivalData();
+        save = new GameplayData();
         save.ChangeGamePhase(GamePhase.BaselineCollection);
         save.isNewGame = true;
         save.UpdateMarioSpeed(1);
@@ -123,6 +124,10 @@ public class SurvivalData
         density = value;
     }
 
+    public void UpdateFirebar(int value) {
+        firebar = value;
+    }
+
     public void UpdateDifficulty(int value) {
         difficulty = value;
     }
@@ -141,6 +146,10 @@ public class SurvivalData
 
     public int GetDensity() {
         return density;
+    }
+
+    public int GetFirebar() {
+        return firebar;
     }
 
     public int GetDifficulty() {
