@@ -80,12 +80,6 @@ public class GameController : MonoBehaviour
     }
 
     public void showStats(bool stats) {
-        // bg.GetComponent<CanvasElementVisibility>().visible = stats;
-        // bgText.GetComponent<CanvasElementVisibility>().visible = stats;
-        // bgSpeed.GetComponent<CanvasElementVisibility>().visible = stats;
-        // bgJump.GetComponent<CanvasElementVisibility>().visible = stats;
-        // bgGoomba.GetComponent<CanvasElementVisibility>().visible = stats;
-        // bgFirebar.GetComponent<CanvasElementVisibility>().visible = stats;
         bg.SetActive(stats);
         bgText.SetActive(stats);
         bgSpeed.SetActive(stats);

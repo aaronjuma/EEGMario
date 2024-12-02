@@ -17,13 +17,15 @@ public class SurvivalController : MonoBehaviour
     [SerializeField] private int goombaCount = 15;
     [SerializeField] private int coinCount = 5;
 
-    [SerializeField] private GameObject bg;
-    [SerializeField] private GameObject bgText;
+    [SerializeField] private GameObject gameStats;
     [SerializeField] private GameObject bgSpeed;
     [SerializeField] private GameObject bgJump;
     [SerializeField] private GameObject bgDensity;
     [SerializeField] private GameObject bgGoomba;
-    [SerializeField] public Text engagement_num;
+
+    [SerializeField] private GameObject baselinePanel;
+
+    [SerializeField] public Text engagementText;
     [SerializeField] public GameObject biofeedbackText;
     [SerializeField] public Text meanText;
     [SerializeField] public Text stdText;
@@ -40,16 +42,13 @@ public class SurvivalController : MonoBehaviour
     private float mean;
     private float std;
 
-    public int baselineDuration = 180; //180 Seconds
+    public int baselineDuration = 15; //180 Seconds
 
     [SerializeField] public bool debugMode;
     [SerializeField] private Slider baselineSlider;
     private float baselineTimeValue;
     float currentEngagement = 0;
     float prevEngagement;
-
-
-
 
     void Awake() {
         SurvivalData.NullCheck();
@@ -75,19 +74,19 @@ public class SurvivalController : MonoBehaviour
 
         if (debugMode){
             ShowStatsUI(true);
-            biofeedbackText.SetActive(true);
         }
         else {
             ShowStatsUI(false);
-            biofeedbackText.SetActive(false);
         }
 
         if (SurvivalData.save.IsNewGame()){
             baselineTimeValue = Time.time;
             SurvivalData.AcknowledgeNewGame();
+            baselinePanel.SetActive(true);
+            mario.EnableControls(false);
         }
         if (SurvivalData.save.GetGamePhase() == SurvivalData.GamePhase.BiofeedbackLoop) {
-            baselineSlider.gameObject.SetActive(false);
+            baselinePanel.SetActive(false);
             mean = SurvivalData.save.GetMean();
             std = SurvivalData.save.GetSTD();
             meanText.text = mean.ToString();
@@ -110,17 +109,14 @@ public class SurvivalController : MonoBehaviour
             if ((Time.time - baselineTimeValue) >= baselineDuration) {
 
                 SurvivalData.save.ChangeGamePhase(SurvivalData.GamePhase.BiofeedbackLoop);
-                baselineSlider.gameObject.SetActive(false);
+                baselinePanel.SetActive(false);
                 InitialGenerateItems();
-                Debug.Log("Array Length: " + SurvivalData.save.baselineData.Count);
                 PerformCalculations();
-                Debug.Log("Mean: " + mean);
-                Debug.Log("std: " + std);
                 SurvivalData.save.SetMean(mean);
                 SurvivalData.save.SetSTD(std);
                 meanText.text = mean.ToString();
                 stdText.text = std.ToString();
-                biofeedbackText.SetActive(true);
+                mario.EnableControls(true);
             }
         }
 
@@ -137,7 +133,8 @@ public class SurvivalController : MonoBehaviour
         if (counter % 15 == 0){ // 5 Hz
             UpdateEngagement();
             UpdateEngagementUI();
-
+            SurvivalData.save.Log(Time.time, currentEngagement, difficulty);
+            
             //During Baseline Collection
             if (SurvivalData.save.GetGamePhase() == SurvivalData.GamePhase.BaselineCollection) {
                 SurvivalData.save.AppendBaselineData(currentEngagement);
@@ -153,13 +150,11 @@ public class SurvivalController : MonoBehaviour
     private void BiofeedbackLoopControl() {
         // Check if it engagement is past 2STD
         if (prevEngagement <= mean+2*std && currentEngagement > mean+2*std) {
-            Debug.Log("INCREASE");
             difficulty++;
             if (difficulty > 10) difficulty = 10;
             changeDifficulty(difficulty);
         }   
         else if (prevEngagement >= mean-2*std && currentEngagement < mean-2*std){
-            Debug.Log("DECREASE");
             difficulty--;
             if (difficulty < 1) difficulty = 1;
             changeDifficulty(difficulty);
@@ -200,12 +195,9 @@ public class SurvivalController : MonoBehaviour
 
 
     public void ShowStatsUI(bool stats) {
-        bg.SetActive(stats);
-        bgText.SetActive(stats);
-        bgSpeed.SetActive(stats);
-        bgJump.SetActive(stats);
-        bgGoomba.SetActive(stats);
-        bgDensity.SetActive(stats);
+        gameStats.SetActive(stats);
+        biofeedbackText.SetActive(stats);
+        engagementText.gameObject.SetActive(stats);
     }
 
     public void UpdateStatsUI() {
@@ -271,7 +263,7 @@ public class SurvivalController : MonoBehaviour
             changeGoomba(goombaDifficulty);
         }
         if(Input.GetKeyDown(KeyCode.F1)) {
-            ShowStatsUI(!bg.activeSelf);
+            ShowStatsUI(!gameStats.activeSelf);
         }
         if(Input.GetKeyDown(KeyCode.F2)) {
             difficulty++;
@@ -279,8 +271,6 @@ public class SurvivalController : MonoBehaviour
             changeDifficulty(difficulty);
         }
     }
-
-
 
 
     public void changeDensity(int desiredDensityDifficulty) {
@@ -540,10 +530,10 @@ public class SurvivalController : MonoBehaviour
         if (InteraxonInterfacer.Instance.currentConnectionState != ConnectionState.CONNECTED || !InteraxonInterfacer.Instance.Artifacts.headbandOn)
         {
             //Lerp back to start position
-            engagement_num.text = "N/A";
+            engagementText.text = "Engagement: N/A";
         }
         else{
-            engagement_num.text = currentEngagement.ToString();
+            engagementText.text = "Engagemenet: " + currentEngagement.ToString();
         }
     }
 }

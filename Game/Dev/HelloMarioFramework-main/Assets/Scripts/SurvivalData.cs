@@ -25,6 +25,8 @@ public class SurvivalData
     public List<float> baselineData = new List<float>();
     public float mean;
     public float std;
+    public CSVLogger baselineLogger = new CSVLogger("baseline");
+    public CSVLogger gameplayLogger = new CSVLogger("gameplay");
 
     //First 3 are position, last is y euler angle
     public float[] hubPosition = new float[] { 0f, 0f, 0f, 0f };
@@ -163,5 +165,14 @@ public class SurvivalData
 
     public float GetSTD() {
         return std;
+    }
+
+    public void Log(float time, float engagement, int difficulty) {
+        if (currentPhase == GamePhase.BaselineCollection) {
+            baselineLogger.Update(time, engagement, difficulty);
+        }
+        else if (currentPhase == GamePhase.BiofeedbackLoop) {
+            gameplayLogger.Update(time, engagement, difficulty);
+        }
     }
 }
