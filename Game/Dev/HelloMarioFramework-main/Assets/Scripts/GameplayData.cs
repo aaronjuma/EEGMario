@@ -22,11 +22,11 @@ public class GameplayData
     //Saved variables
     public int coins = 0;
     public int starCount = 0;
-    public List<float> baselineData = new List<float>();
+    public List<float> baselineData;
     public float mean;
     public float std;
-    public CSVLogger baselineLogger = new CSVLogger("baseline");
-    public CSVLogger gameplayLogger = new CSVLogger("gameplay");
+    public CSVLogger baselineLogger;
+    public CSVLogger gameplayLogger;
 
     //First 3 are position, last is y euler angle
     public float[] hubPosition = new float[] { 0f, 0f, 0f, 0f };
@@ -78,6 +78,9 @@ public class GameplayData
         save.UpdateDensity(1);
         save.UpdateGoombaSpeed(1);
         save.UpdateDifficulty(1);
+        save.baselineData = new List<float>();
+        save.baselineLogger = new CSVLogger("baseline");
+        save.gameplayLogger = new CSVLogger("gameplay");
     }
 
     //Null check

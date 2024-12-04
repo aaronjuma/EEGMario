@@ -35,6 +35,7 @@ public class Level1Controller : MonoBehaviour
     [SerializeField] public GameObject bgJump;
     [SerializeField] public GameObject bgFirebar;
     [SerializeField] public GameObject bgGoomba;
+    [SerializeField] private GameObject musePanelHUD;
 
     [SerializeField] private GameObject baselinePanel;
     [SerializeField] private Slider baselineSlider;
@@ -208,6 +209,7 @@ public class Level1Controller : MonoBehaviour
         gameStats.SetActive(stats);
         biofeedbackText.SetActive(stats);
         engagementText.gameObject.SetActive(stats);
+        musePanelHUD.SetActive(stats);
     }
 
 

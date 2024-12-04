@@ -26,6 +26,7 @@ namespace HelloMarioFramework
         //Game
         private bool fileSelect = false;
         private int index = 0;
+        private int levelIndex = 0;
         private bool buttonDown = false;
         private bool selected = false;
         private bool newGame = false;
@@ -63,6 +64,8 @@ namespace HelloMarioFramework
         [SerializeField]
         private Image buttonPlay;
         [SerializeField]
+        private GameObject arrows;
+        [SerializeField]
         private Image buttonSettings;
         [SerializeField]
         private Image buttonQuit;
@@ -77,7 +80,6 @@ namespace HelloMarioFramework
         private SceneReference level1;
         [SerializeField]
         private SceneReference survival;
-
         private SceneReference chosenScene;
         
         void Start()
@@ -129,7 +131,7 @@ namespace HelloMarioFramework
                     //Press A to select this file
                     if (jumpAction.action.WasPressedThisFrame() && settingsPanel.activeSelf == false)
                     {
-                        if (index == 0){ 
+                        if (index == 0 && levelIndex != 0){ 
                             musicPlayer.Stop();
                             audioPlayer.PlayOneShot(selectSFX);
                             audioPlayer.PlayOneShot(selectVoiceSFX);
@@ -142,7 +144,13 @@ namespace HelloMarioFramework
                             // string json = JsonUtility.ToJson(newvar);
                             // File.WriteAllText(Application.dataPath + "/variables.json", json);
                             // Debug.Log(Application.dataPath + "/variables.json");
-                            if (newGame) SaveData.NewGame();
+                            if (levelIndex == 1) {
+                                chosenScene = survival;
+                            }
+                            else if (levelIndex == 2){
+                                chosenScene = level1;
+                            }
+                            SaveData.NewGame();
                             StartCoroutine(ChangeScene());
                         }
                         if (index == 1) {
@@ -167,23 +175,27 @@ namespace HelloMarioFramework
                             y_axis = movementAction.action.ReadValue<Vector2>().y;
                         }
                         //Down
-                        // if (!buttonDown && y_axis > 0.5f)
-                        // {
-                        //     // buttonDown = true;
-                        //     // audioPlayer.PlayOneShot(moveSFX);
-                        //     // index--;
-                        //     // if (index < 0) index = 5;
-                        //     // moveSelectors();
-                        // }
-                        // //Up
-                        // else if (!buttonDown && y_axis < -0.5f)
-                        // {
-                        //     // buttonDown = true;
-                        //     // audioPlayer.PlayOneShot(moveSFX);
-                        //     // index++;
-                        //     // if (index > 5) index = 0;
-                        //     // moveSelectors();
-                        // }
+                        if (!buttonDown && y_axis > 0.5f)
+                        {
+                            buttonDown = true;
+                            if (index == 0){
+                                audioPlayer.PlayOneShot(moveSFX);
+                                levelIndex--;
+                                if (levelIndex < 0) levelIndex = 0;
+                                ChangePlayLevel();
+                            }
+                        }
+                        //Up
+                        else if (!buttonDown && y_axis < -0.5f)
+                        {
+                            buttonDown = true;
+                            if (index == 0){
+                                audioPlayer.PlayOneShot(moveSFX);
+                                levelIndex++;
+                                if (levelIndex > 2) levelIndex = 2;
+                                ChangePlayLevel();
+                            }
+                        }
                         //Left
                         if (!buttonDown && x_axis < -0.5f){
                             buttonDown = true;
@@ -224,16 +236,31 @@ namespace HelloMarioFramework
                 buttonPlay.color = highlighted;
                 buttonSettings.color = notHighlighted;
                 buttonQuit.color = notHighlighted;
+                arrows.SetActive(true);
             }
             else if (index == 1){
                 buttonPlay.color = notHighlighted;
                 buttonSettings.color = highlighted;
                 buttonQuit.color = notHighlighted;
+                arrows.SetActive(false);
             }
             else if (index == 2){
                 buttonPlay.color = notHighlighted;
                 buttonSettings.color = notHighlighted;
                 buttonQuit.color = highlighted;
+                arrows.SetActive(false);
+            }
+        }
+
+        private void ChangePlayLevel() {
+            if (levelIndex == 0) {
+                buttonPlay.GetComponentInChildren<Text>().text = "Play";
+            }
+            else if (levelIndex == 1) {
+                buttonPlay.GetComponentInChildren<Text>().text = "Survival";
+            }
+            else if (levelIndex == 2) {
+                buttonPlay.GetComponentInChildren<Text>().text = "Level 1";
             }
         }
 

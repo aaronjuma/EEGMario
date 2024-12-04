@@ -22,6 +22,7 @@ public class SurvivalController : MonoBehaviour
     [SerializeField] private GameObject bgJump;
     [SerializeField] private GameObject bgDensity;
     [SerializeField] private GameObject bgGoomba;
+    [SerializeField] private GameObject musePanelHUD;
 
     [SerializeField] private GameObject baselinePanel;
     [SerializeField] private Slider baselineSlider;
@@ -197,6 +198,7 @@ public class SurvivalController : MonoBehaviour
         gameStats.SetActive(stats);
         biofeedbackText.SetActive(stats);
         engagementText.gameObject.SetActive(stats);
+        musePanelHUD.SetActive(stats);
     }
 
     public void UpdateStatsUI() {
