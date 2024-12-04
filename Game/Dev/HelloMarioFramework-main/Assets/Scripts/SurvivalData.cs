@@ -23,6 +23,7 @@ public class SurvivalData
     public int coins = 0;
     public int starCount = 0;
     public List<float> baselineData = new List<float>();
+    public List<float> gameplayBinData = new List<float>();
     public float mean;
     public float std;
 
@@ -147,6 +148,14 @@ public class SurvivalData
 
     public void AppendBaselineData(float val) {
         save.baselineData.Add(val);
+    }
+
+    public void AppendGameplayBinData(float val) {
+        save.gameplayBinData.Add(val);
+    }
+
+    public void ClearGameplayBinData() {
+        save.gameplayBinData.Clear();
     }
 
     public void SetMean(float val) {

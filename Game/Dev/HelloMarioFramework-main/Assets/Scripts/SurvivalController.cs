@@ -46,7 +46,8 @@ public class SurvivalController : MonoBehaviour
     [SerializeField] private Slider baselineSlider;
     private float baselineTimeValue;
     float currentEngagement = 0;
-    float prevEngagement;
+    float prevEngagement = 0;
+    float binAvg = 0;
 
     void Awake() {
         SurvivalData.NullCheck();
@@ -141,27 +142,50 @@ public class SurvivalController : MonoBehaviour
                 SurvivalData.save.AppendBaselineData(currentEngagement);
             }
 
+<<<<<<< Updated upstream
             else if (SurvivalData.save.GetGamePhase() == SurvivalData.GamePhase.BiofeedbackLoop) {
+=======
+            else if (GameplayData.save.GetGamePhase() == GameplayData.GamePhase.BiofeedbackLoop) {
+                // BiofeedbackLoopControl();
+                GameplayData.save.AppendGameplayBinData(currentEngagement);
+            }
+        }
+
+        if (counter % (75*5) == 0) { // Every 5 seconds
+            if (GameplayData.save.GetGamePhase() == GameplayData.GamePhase.BiofeedbackLoop) {
+>>>>>>> Stashed changes
                 BiofeedbackLoopControl();
             }
-
         }
     }
 
     private void BiofeedbackLoopControl() {
+        prevEngagement = binAvg;
+        binAvg = MathHelper.Average(GameplayData.save.gameplayBinData);
+        Debug.Log("Previous Engagement: " + prevEngagement.ToString() + " Current Engagement: " + binAvg.ToString());
         // Check if it engagement is past 2STD
+<<<<<<< Updated upstream
         if (prevEngagement <= mean+2*std && currentEngagement > mean+2*std) {
             Debug.Log("INCREASE");
+=======
+        if (binAvg >= mean+2*std) {
+>>>>>>> Stashed changes
             difficulty++;
             if (difficulty > 10) difficulty = 10;
             changeDifficulty(difficulty);
         }   
+<<<<<<< Updated upstream
         else if (prevEngagement >= mean-2*std && currentEngagement < mean-2*std){
             Debug.Log("DECREASE");
+=======
+        else if (binAvg <= mean-2*std){
+>>>>>>> Stashed changes
             difficulty--;
             if (difficulty < 1) difficulty = 1;
             changeDifficulty(difficulty);
         }
+
+        GameplayData.save.ClearGameplayBinData();
     }
 
 
@@ -504,7 +528,6 @@ public class SurvivalController : MonoBehaviour
 
 
     private void UpdateEngagement() {
-        prevEngagement = currentEngagement;
         if (InteraxonInterfacer.Instance.currentConnectionState != ConnectionState.CONNECTED || !InteraxonInterfacer.Instance.Artifacts.headbandOn)
         {
             //Lerp back to start position
