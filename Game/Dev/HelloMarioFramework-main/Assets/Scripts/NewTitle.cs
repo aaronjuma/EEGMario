@@ -150,6 +150,7 @@ namespace HelloMarioFramework
                             else if (levelIndex == 2){
                                 chosenScene = level1;
                             }
+                            GameplayData.NewGame();
                             SaveData.NewGame();
                             StartCoroutine(ChangeScene());
                         }
