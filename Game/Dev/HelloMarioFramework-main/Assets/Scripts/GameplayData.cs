@@ -13,18 +13,20 @@ using System.IO;
 using UnityEngine;
 
 [Serializable]
-public class SurvivalData
+public class GameplayData
 {
     //Current loaded save file
-    public static SurvivalData save;
+    public static GameplayData save;
     private static string fileName = Path.Combine(Application.persistentDataPath, "survival.json");
 
     //Saved variables
     public int coins = 0;
     public int starCount = 0;
-    public List<float> baselineData = new List<float>();
+    public List<float> baselineData;
     public float mean;
     public float std;
+    public CSVLogger baselineLogger;
+    public CSVLogger gameplayLogger;
 
     //First 3 are position, last is y euler angle
     public float[] hubPosition = new float[] { 0f, 0f, 0f, 0f };
@@ -33,6 +35,7 @@ public class SurvivalData
     public int marioSpeed = 1;
     public int goomba = 1;
     public int density = 1;
+    public int firebar = 1;
     public int difficulty = 1;
 
 
@@ -57,7 +60,7 @@ public class SurvivalData
     {
         if (System.IO.File.Exists(fileName))
         {
-            save = JsonUtility.FromJson<SurvivalData>(System.IO.File.ReadAllText(fileName));
+            save = JsonUtility.FromJson<GameplayData>(System.IO.File.ReadAllText(fileName));
             return true;
         }
         else
@@ -67,7 +70,7 @@ public class SurvivalData
     //Create new game
     public static void NewGame()
     {
-        save = new SurvivalData();
+        save = new GameplayData();
         save.ChangeGamePhase(GamePhase.BaselineCollection);
         save.isNewGame = true;
         save.UpdateMarioSpeed(1);
@@ -75,6 +78,9 @@ public class SurvivalData
         save.UpdateDensity(1);
         save.UpdateGoombaSpeed(1);
         save.UpdateDifficulty(1);
+        save.baselineData = new List<float>();
+        save.baselineLogger = new CSVLogger("baseline");
+        save.gameplayLogger = new CSVLogger("gameplay");
     }
 
     //Null check
@@ -121,6 +127,10 @@ public class SurvivalData
         density = value;
     }
 
+    public void UpdateFirebar(int value) {
+        firebar = value;
+    }
+
     public void UpdateDifficulty(int value) {
         difficulty = value;
     }
@@ -139,6 +149,10 @@ public class SurvivalData
 
     public int GetDensity() {
         return density;
+    }
+
+    public int GetFirebar() {
+        return firebar;
     }
 
     public int GetDifficulty() {
@@ -163,5 +177,14 @@ public class SurvivalData
 
     public float GetSTD() {
         return std;
+    }
+
+    public void Log(float time, float engagement, int difficulty) {
+        if (currentPhase == GamePhase.BaselineCollection) {
+            baselineLogger.Update(time, engagement, difficulty);
+        }
+        else if (currentPhase == GamePhase.BiofeedbackLoop) {
+            gameplayLogger.Update(time, engagement, difficulty);
+        }
     }
 }
